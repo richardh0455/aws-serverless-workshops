@@ -17,7 +17,7 @@ import DynamicImage from '../components/DynamicImage';
 import SiteNav from '../components/SiteNav';
 import SiteFooter from '../components/SiteFooter';
 
-import '../css/main.css';
+import '../public/css/app.css';
 
 const Unicorns = () => (
   <div className="page-unicorns">

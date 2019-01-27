@@ -16,7 +16,7 @@
   width: 100vw;
   height: 100vh;
 
-  background-image: url("https://s3.amazonaws.com/aws-mobile-hub-images/wild-rydes/background.png");
+  background-color: white;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center bottom;
@@ -119,8 +119,8 @@
 
 .app input[type=submit] {
     width: 200px;
-    background-color: white;
-    color: #f50856;
+    background-color: #062e71;
+    color: white;
     padding: 14px 20px;
     margin: 8px auto 30px;
     border: none;
@@ -128,7 +128,7 @@
     cursor: pointer;
     display: block;
 
-    font-family: "fairplex-wide";
+    font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
     font-size: 24px;
     opacity: 1;
     font-weight: 700;
@@ -139,8 +139,8 @@
 }
 
 .app input[type=submit]:hover {
-    background-color: #dddddd;
-    color: #bb0642;
+    background-color: white;
+    color: #062e71;
 }
 
 

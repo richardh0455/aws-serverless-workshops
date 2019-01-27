@@ -16,8 +16,7 @@ import React from 'react';
 import SiteNav from '../components/SiteNav';
 import SiteFooter from '../components/SiteFooter';
 
-import '../css/main.css';
-
+import '../public/css/app.css';
 const FAQ = () => {
     return (
       <div className="page-faq">

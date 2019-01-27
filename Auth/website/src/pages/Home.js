@@ -19,7 +19,7 @@ import EmailSignUp from '../components/EmailSignUp';
 import SiteNav from '../components/SiteNav';
 import SiteFooter from '../components/SiteFooter';
 
-import '../css/main.css';
+import '../public/css/app.css';
 
 const AboutSection = () => (
   <section className="home-about">

@@ -18,7 +18,7 @@ import ESRIMap from '../components/ESRIMap';
 import Amplify from 'aws-amplify';
 import { Auth, API } from 'aws-amplify';
 import awsConfig from '../amplify-config';
-import '../css/ride.css';
+import '../public/css/app.css';
 
 const apiName = 'WildRydesAPI';
 const apiPath = '/ride';
