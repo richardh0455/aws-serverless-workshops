@@ -122,7 +122,6 @@ class SignUp extends React.Component {
           <h1>Register</h1>
           <form id="registrationForm" onSubmit={(e) => this.onSubmitForm(e)}>
             <input className={isValidEmail?'valid':'invalid'} type="email" placeholder="Email" value={this.state.email} onChange={(e) => this.onEmailChanged(e)}/>
-            <input className='valid' type="phone" placeholder="Phone" value={this.state.phone} onChange={(e) => this.onPhoneChanged(e)}/>
             <input className={isValidPassword?'valid':'invalid'} type="password" placeholder="Password" value={this.state.password} onChange={(e) => this.onPasswordChanged(e)}/>
             <input className={isValidConfirmation?'valid':'invalid'} type="password" placeholder="Confirm Password" value={this.state.confirm} onChange={(e) => this.onConfirmationChanged(e)}/>
             <input disabled={!(isValidEmail && isValidPassword && isValidConfirmation)} type="submit" value="Sign Up"/>
