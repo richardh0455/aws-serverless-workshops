@@ -16,8 +16,9 @@ import React from 'react';
 import { Auth } from 'aws-amplify';
 import DynamicImage from '../components/DynamicImage';
 import { withRouter } from 'react-router-dom';
-
+import logo from '../public/images/LTLogo.png';
 import '../public/css/app.css';
+
 /**
  * Sign-in Page
  */
@@ -103,14 +104,14 @@ class SignIn extends React.Component {
     return (
       <div className="app">
         <header>
-          <DynamicImage src="logo.png"/>
+          <img src={logo}/>
         </header>
         <section className="form-wrap">
           <h1>Sign in</h1>
           <form id="registrationForm" onSubmit={(e) => this.onSubmitForm(e)}>
             <input className={isValidEmail?'valid':'invalid'} type="email" placeholder="Email" value={this.state.email} onChange={(e) => this.onEmailChanged(e)}/>
             <input className={isValidPassword?'valid':'invalid'} type="password" placeholder="Password" value={this.state.password} onChange={(e) => this.onPasswordChanged(e)}/>
-            <input disabled={!(isValidEmail && isValidPassword)} type="submit" value="Let's Ryde"/>
+            <input disabled={!(isValidEmail && isValidPassword)} type="submit" value="Sign In"/>
           </form>
         </section>
       </div>
@@ -124,7 +125,7 @@ class SignIn extends React.Component {
     return (
       <div className="app">
         <header>
-          <DynamicImage src="logo.png"/>
+          <img src={logo}/>
         </header>
         <section className="form-wrap">
           <h1>Enter MFA Code</h1>

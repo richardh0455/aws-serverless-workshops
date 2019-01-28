@@ -19,9 +19,10 @@ import Amplify from 'aws-amplify';
 import { Auth, API } from 'aws-amplify';
 import awsConfig from '../amplify-config';
 import '../public/css/app.css';
+import '../public/css/gridforms.css';
 
-const apiName = 'WildRydesAPI';
-const apiPath = '/ride';
+const apiName = 'CustomersAPI';
+const apiPath = '/all';
 
 class MainApp extends React.Component {
   constructor(props) {
@@ -39,7 +40,12 @@ class MainApp extends React.Component {
   async componentDidMount() {
     const session = await Auth.currentSession();
     this.setState({ authToken: session.accessToken.jwtToken });
+	console.log('MainApp session token: '+session.idToken.jwtToken);
     this.setState({ idToken: session.idToken.jwtToken });
+	
+	const customers = await this.getData();
+	console.log(customers.body);
+	this.setState({customers: customers.body})
   }
 
   /**
@@ -48,8 +54,8 @@ class MainApp extends React.Component {
    * @return {Boolean} true if API is configured
    */
   hasApi() {
-    // const api = awsConfig.API.endpoints.filter(v => v.endpoint !== '');                                                   
-    // return (typeof api !== 'undefined');
+     const api = awsConfig.API.endpoints.filter(v => v.endpoint !== '');                                                   
+     return (typeof api !== 'undefined');
   }
 
   /**
@@ -58,8 +64,14 @@ class MainApp extends React.Component {
    * @param {Number} latitude
    * @param {Number} longitude
    */
-  async getData(pin) {
-    console.error('Request a Ride is not implemented');
+  async getData() {
+	const apiRequest = {
+      headers: {
+        'Authorization': this.state.idToken,
+        'Content-Type': 'application/json'
+      }
+    };
+	return await API.get(apiName, apiPath, apiRequest)
   }
 
   /**
@@ -110,53 +122,72 @@ class MainApp extends React.Component {
   }
 
   render() {
-    const hasApi = this.hasApi();
-
+	var customers = [];
+	if(this.state.customers){
+		customers = JSON.parse(this.state.customers);
+	}	
+	
+	let optionItems = customers.map((customer) =>
+                <option key={customer.ID}>{customer.Name}</option>
+            );
     // If API is not configured, but auth is, then output the
     // token.
-    if (!hasApi) {
-      return (
-        <div>
-          <BaseMap/>
-          <div className="configMessage">
-            <div className="backdrop"></div>
-            <div className="panel panel-default">
-              <div className="panel-heading">
-                <h3 className="panel-title">Successfully Authenticated!</h3>
-              </div>
-              <div className="panel-body">
-                <p>This page is not functional yet because there is no API configured.</p>
-                <p>Here is your user's identity token:</p>
-                <p className="idToken">{this.state.idToken}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    // If the API is configured, then display the "requestUnicorn"
-    // button.  If data is available (i.e. unicorn is requested),
-    // then display the additional patterns (unicorn on map).
-    const updateList = this.state.updates.map(
-      (v, i) => <li key={i}>{v}</li>
-    );
     return (
       <div>
-        <div className="info panel panel-default">
-          <div className="panel-heading">
-            <button id="request" className="btn btn-primary" disabled={!this.state.requestRideEnabled} onClick={() => this.onClick()}>Request</button>
-          </div>
-          <div className="panel-body">
-            <ol id="updates">{updateList}</ol>
-          </div>
-        </div>
-        <div id="main">
-          <ESRIMap onMapClick={(position) => { this.onMapClick(position); }}/>
-        </div>
+	    <form class="grid-form">
+          <fieldset>
+            <legend >Customer</legend>
+            <div data-row-span="2">
+              <div data-field-span="1" class="">
+                <label>Customer</label>
+                <select>
+                  <option>Select a customer</option>
+				  {optionItems}
+                </select>
+              </div>
+              <div data-field-span="1" class="">
+                <label>Shipping Address</label>
+                <select>
+                  <option>Select a Shipping Address</option>
+                </select>
+              </div>
+            </div>
+            <legend >Product</legend>
+            <div data-row-span="4">
+              <div data-field-span="1" class="">
+                <label>Product</label>
+                <select>
+                  <option>Select a product type</option>
+                </select>
+              </div>
+              <div data-field-span="1" class="">
+                <label>Configuration</label>
+                <select>
+                  <option>Select a product configuration</option>
+                </select>
+              </div>
+              <div data-field-span="1" class="">
+                <label>Quantity</label>
+                <input type="text"/>
+              </div>
+              <div data-field-span="1" class="">
+                <label>Pricing</label>
+                <input type="text"/>
+              </div>
+              <div >
+                <b >Subtotal:</b>   
+              </div>    
+            </div>
+            <button >Add Product</button>
+              <ul><li ><b>Total:</b></li></ul>
+          </fieldset>
+        </form>
       </div>
-    );
+      );
   }
+  
+
+
 }
 
 export default MainApp;

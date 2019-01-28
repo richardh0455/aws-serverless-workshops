@@ -13,9 +13,9 @@ const awsConfig = {
     API: {
         endpoints: [
             {
-                name: 'WildRydesAPI',
-                endpoint: '', // example: 'https://u8swuvl00f.execute-api.us-east-2.amazonaws.com/prod'
-                region: '' // example: 'us-east-2'
+                name: 'CustomersAPI',
+                endpoint: 'https://j383ee0ls6.execute-api.ap-southeast-2.amazonaws.com/dev/customers', // example: 'https://u8swuvl00f.execute-api.us-east-2.amazonaws.com/prod'
+                region: 'ap-southeast-2' // example: 'us-east-2'
             }
         ]
     },

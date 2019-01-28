@@ -40,13 +40,9 @@ class App extends React.Component {
     return (
       <BrowserRouter>
         <Switch>
-          <Route exact path="/" component={Home}/>
-          <Route path="/faq" component={FAQ} />
-          <Route path="/investors" component={Investors} />
-          <Route path="/unicorns" component={Unicorns} />
+          <Route exact path="/" component={SignIn}/>
           <Route path="/register" component={SignUp} />
-	        <Route path="/signin" component={SignIn} />
-          <Route path="/profile" component={Profile} />
+	      <Route path="/signin" component={SignIn} />
           <PrivateRoute path="/app" component={MainApp} />
         </Switch>
       </BrowserRouter>
