@@ -25,14 +25,20 @@ import '../public/css/app.css';
 class SignUp extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      stage: 0,
-      email: '',
-      phone: '',
-      password: '',
-      confirm: '',
-      code: ''
-    };
+    this.state = JSON.parse(localStorage.getItem('SignUpState'))
+	console.log(this.state)
+	if(!this.state || !this.state.stage)
+	{
+		console.log('Resetting state');
+		this.setLocalStorage({
+			stage: 0,
+			email: '',
+			password: '',
+			confirm: '',
+			code: ''
+		});
+	}
+	
   }
 
   async onSubmitForm(e) {
@@ -42,14 +48,14 @@ class SignUp extends React.Component {
         username: this.state.email,
         password: this.state.password,
         attributes: {
-	        email: this.state.email,
-	        phone_number: this.state.phone
+	        email: this.state.email
         },
         validationData: []
       };
       const data = await Auth.signUp(params);
       console.log(data);
-      this.setState({ stage: 1 });
+	  this.state.stage = 1;
+	  this.setLocalStorage(this.state);
     } catch (err) {
       if (err === "No userPool") {
         // User pool not defined in Amplify config file
@@ -57,12 +63,18 @@ class SignUp extends React.Component {
         alert("User Pool not defined. Amplify config must be updated with user pool config");
       } else if (err.message === "User already exists") {
         // Setting state to allow user to proceed to enter verification code
-        this.setState({ stage: 1 });
+        this.state.stage = 1;
+	  this.setLocalStorage(this.state);
       } else {
         if (err.message.indexOf("phone number format") >= 0) {err.message = "Invalid phone number format. Must include country code. Example: +14252345678"}
         alert(err.message);
         console.error("Exception from Auth.signUp: ", err);
         this.setState({ stage: 0, email: '', password: '', confirm: '' });
+		this.state.email= '';
+		this.state.password= '';
+		this.state.confirm= '';
+		this.state.stage = 0;
+		this.setLocalStorage(this.state);
       }
     }
   }
@@ -84,28 +96,33 @@ class SignUp extends React.Component {
   }
 
   onEmailChanged(e) {
-    this.setState({ email: e.target.value.toLowerCase() });
+	this.state.email=e.target.value.toLowerCase();
+	this.setLocalStorage(this.state);
   }
 
-  onPhoneChanged(e) {
-    this.setState({ phone: e.target.value });
-  }
 
   onPasswordChanged(e) {
     this.setState({ password: e.target.value });
   }
 
   onConfirmationChanged(e) {
-    this.setState({ confirm: e.target.value });
+	this.state.confirm=e.target.value;
+	this.setLocalStorage(this.state);
   }
 
   onCodeChanged(e) {
-    this.setState({ code: e.target.value });
+	this.state.code=e.target.value;
+	this.setLocalStorage(this.state);
   }
 
   isValidEmail(email) {
     var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(String(email).toLowerCase());
+  }
+
+  goToSignInPage(e) {
+      this.props.history.replace('/signin');
+
   }
 
   renderSignUp() {
@@ -138,16 +155,13 @@ class SignUp extends React.Component {
     return (
       <div className="app">
         <header>
-          <DynamicImage src="logo.png"/>
+          <img src={logo}/>
         </header>
-        <section className="form-wrap">
-          <h1>Verify Email</h1>
-          <form id="verifyForm" onSubmit={(e) => this.onSubmitVerification(e)}>
-            <input className={isValidEmail?'valid':'invalid'} type="email" placeholder="Email" value={this.state.email}/>
-            <input className={isValidCode?'valid':'invalid'} type="text" placeholder="Verification Code" value={this.state.code} onChange={(e) => this.onCodeChanged(e)}/>
-            <input disabled={!(isValidCode&&isValidEmail)} type="submit" value="Verify"/>
-          </form>
-        </section>
+        <div className="centered">
+          <h3 className="title icon-download">Registration Submitted</h3>
+          <p className="content">Great! You'll be able to sign in once the Administrator has approved your request</p>
+		  <button type="button" onClick={(e) => this.goToSignInPage(e)}>Sign In</button>
+        </div>
       </div>
     );
   }
@@ -160,6 +174,13 @@ class SignUp extends React.Component {
       case 1:
         return this.renderConfirm();
     }
+  }
+  
+  setLocalStorage(jsonObj) {
+	  this.state=jsonObj;
+	  this.setState(jsonObj);
+	  localStorage.setItem('SignUpState', JSON.stringify(this.state))
+	  
   }
 }
 

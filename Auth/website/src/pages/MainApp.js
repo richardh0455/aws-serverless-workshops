@@ -21,8 +21,10 @@ import awsConfig from '../amplify-config';
 import '../public/css/app.css';
 import '../public/css/gridforms.css';
 
-const apiName = 'CustomersAPI';
+const customersAPI = 'CustomersAPI';
 const apiPath = '/all';
+
+const productsAPI = 'ProductsAPI';
 
 class MainApp extends React.Component {
   constructor(props) {
@@ -31,21 +33,18 @@ class MainApp extends React.Component {
       authToken: null,
       idToken: null,
       requestRideEnabled: false,
-      updates: [
-        'Welcome! Click the map to set your pickup location.'
-      ]
+	  customer: null
     };
   }
 
   async componentDidMount() {
     const session = await Auth.currentSession();
     this.setState({ authToken: session.accessToken.jwtToken });
-	console.log('MainApp session token: '+session.idToken.jwtToken);
     this.setState({ idToken: session.idToken.jwtToken });
-	
-	const customers = await this.getData();
-	console.log(customers.body);
+	const customers = await this.getCustomers();
 	this.setState({customers: customers.body})
+	const products = await this.getProducts();
+	this.setState({products: products.body})
   }
 
   /**
@@ -57,120 +56,163 @@ class MainApp extends React.Component {
      const api = awsConfig.API.endpoints.filter(v => v.endpoint !== '');                                                   
      return (typeof api !== 'undefined');
   }
-
-  /**
-   * Calls the backend API to retrieve the Unicorn data
-   *
-   * @param {Number} latitude
-   * @param {Number} longitude
-   */
-  async getData() {
+  async getProducts() {
 	const apiRequest = {
       headers: {
         'Authorization': this.state.idToken,
         'Content-Type': 'application/json'
       }
     };
-	return await API.get(apiName, apiPath, apiRequest)
+	return await API.get(productsAPI, apiPath, apiRequest)
+  }
+  
+  async getProductConfig(id) {
+	const apiRequest = {
+      headers: {
+        'Authorization': this.state.idToken,
+        'Content-Type': 'application/json'
+      }
+    };
+	return await API.get(productsAPI, '/'+id, apiRequest)
+  }  
+
+  async getCustomers() {
+	const apiRequest = {
+      headers: {
+        'Authorization': this.state.idToken,
+        'Content-Type': 'application/json'
+      }
+    };
+	return await API.get(customersAPI, apiPath, apiRequest)
+  }
+  
+  async getCustomer(id) {
+	const apiRequest = {
+      headers: {
+        'Authorization': this.state.idToken,
+        'Content-Type': 'application/json'
+      }
+    };
+	return await API.get(customersAPI, '/'+id, apiRequest)
+  }
+  
+  async handleCustomerChange(event) {
+	console.log(event.target.value);
+	var customer = await this.getCustomer(event.target.value);
+	console.log(customer.body)
+	this.setState({customer: customer.body})
+  }
+  
+  handleProductChange(event) {
+	console.log(event.target.value);
+	var productConfig = this.getProductConfig(event.target.value);
+	console.log(productConfig);
   }
 
-  /**
-   * Called when Request Ride is called
-   */
   async onClick() {
-    if (!this.state.pin) {
-      console.error('No pin present - skipping');
-      return true;
-    }
 
-    const updates = [ 'Requesting Unicorn' ];
-    try {
-      this.setState({
-        requestRideEnabled: false,
-        updates
-      });
-      const data = await this.getData(this.state.pin);
-      console.log(data);
-      updates.push([ `Your unicorn, ${data.Unicorn.Name} will be with you in ${data.Eta}` ]);
-      this.setState({ updates });
-
-      // Let's fake the arrival
-      setTimeout(() => {
-        console.log('Ride Complete');
-        const updateList = this.state.updates;
-        updateList.push([ `${data.Unicorn.Name} has arrived` ]);
-        this.setState({
-          updates: updateList,
-          requestRideEnabled: false,
-          pin: null
-        });
-      }, data.Eta * 1000);
-    } catch (err) {
-      console.error(err);
-      updates.push([ 'Error finding unicorn' ]);
-      this.setState({ updates });
-    }
   }
 
-  /**
-   * Called when the mapClick happens
-   * @param {Point} position the position of the map pin
-   */
-  onMapClick(position) {
-    console.log(`onMapClick(${JSON.stringify(position)})`);
-    this.setState({ pin: position, requestRideEnabled: true });
-  }
 
   render() {
+	var products = [];
+	if(this.state.products){
+		products = JSON.parse(this.state.products);
+	}
+	let productOptions = null;
+	try{
+		productOptions = products.map((product) =>
+                <option key={product.ID} value={product.ID}>{product.Name}</option>
+            );  
+	}catch(err)
+	{
+		console.log('Error rendering products: '+err);
+	}
+	
+	var productConfigs = [];
+	if(this.state.productConfigs){
+		productConfigs = JSON.parse(this.state.productConfigs);
+	}
+	let productConfigOptions = null;
+	try{
+		productConfigOptions = productConfigs.map((productConfig) =>
+                <option key={productConfig.ID} value={productConfig.ID}>{productConfig.Name}</option>
+            );  
+	}catch(err)
+	{
+		console.log('Error rendering products: '+err);
+	}
+	
 	var customers = [];
 	if(this.state.customers){
 		customers = JSON.parse(this.state.customers);
-	}	
+	}
+
+	var customer = 	JSON.parse(this.state.customer);
 	
-	let optionItems = customers.map((customer) =>
-                <option key={customer.ID}>{customer.Name}</option>
+	
+	let customerOptions = null;
+	try{
+		customerOptions = customers.map((customer) =>
+                <option key={customer.ID} value={customer.ID}>{customer.Name}</option>
             );
+	}catch(err)
+	{
+		console.log('Error rendering Customers: '+err);
+	}
+			
+	let shippingAddresses = [];		
+	if(customer && "ShippingAddresses" in customer){
+		console.log(customer.ShippingAddresses)
+		shippingAddresses = customer.ShippingAddresses.map((address) => 
+				<option key={address.ShippingAddressID} value={address.ShippingAddressID}>{address.ShippingAddress}</option>
+			);
+	}
     // If API is not configured, but auth is, then output the
     // token.
     return (
       <div>
-	    <form class="grid-form">
+	    <form className="grid-form">
           <fieldset>
             <legend >Customer</legend>
             <div data-row-span="2">
-              <div data-field-span="1" class="">
+              <div data-field-span="1" >
                 <label>Customer</label>
-                <select>
+                <select onChange={this.handleCustomerChange.bind(this)} >
                   <option>Select a customer</option>
-				  {optionItems}
+				  {customerOptions}
                 </select>
               </div>
-              <div data-field-span="1" class="">
+              <div data-field-span="1" >
                 <label>Shipping Address</label>
                 <select>
                   <option>Select a Shipping Address</option>
+				  {shippingAddresses}
+
                 </select>
               </div>
             </div>
             <legend >Product</legend>
             <div data-row-span="4">
-              <div data-field-span="1" class="">
+              <div data-field-span="1" >
                 <label>Product</label>
-                <select>
+                <select onChange={this.handleProductChange.bind(this)}>
                   <option>Select a product type</option>
+				  {productOptions}
                 </select>
               </div>
-              <div data-field-span="1" class="">
+              <div data-field-span="1" >
                 <label>Configuration</label>
                 <select>
                   <option>Select a product configuration</option>
+				  {productConfigOptions}
                 </select>
               </div>
-              <div data-field-span="1" class="">
+              <div data-field-span="1" >
                 <label>Quantity</label>
                 <input type="text"/>
               </div>
-              <div data-field-span="1" class="">
+              <div data-field-span="1" >
                 <label>Pricing</label>
                 <input type="text"/>
               </div>

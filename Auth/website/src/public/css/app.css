@@ -144,6 +144,40 @@
     color: #062e71;
 }
 
+.app button[type=button] {
+    width: 200px;
+    background-color: #062e71;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px auto 30px;
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    display: block;
+
+    font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 24px;
+    opacity: 1;
+    font-weight: 700;
+    text-transform: uppercase;
+
+    -webkit-transition: background-color 0.2s ease-in-out;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.app button[type=button] :hover {
+    background-color: white;
+    color: #062e71;
+}
+
+
+.app div[className=centered] {
+	display: block;
+	padding: 14px 20px;
+    margin: 8px auto 30px;
+    border: none;
+}
+
 
 .app ::-webkit-input-placeholder { /* Chrome */
   color: #062e71;
@@ -180,6 +214,8 @@
   text-align: center;
   margin: 10px 0;
 }
+
+
 
 
 @media screen and (max-width: 1200px) {

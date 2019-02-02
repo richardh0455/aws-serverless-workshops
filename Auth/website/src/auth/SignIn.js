@@ -48,9 +48,10 @@ class SignIn extends React.Component {
         } else {
           // No remaining auth challenges need to be satisfied
           const session = await Auth.currentSession();
-          // console.log('Cognito User Access Token:', session.getAccessToken().getJwtToken());
-          console.log('Cognito User Identity Token:', session.getIdToken().getJwtToken());
-          // console.log('Cognito User Refresh Token', session.getRefreshToken().getToken());
+          //console.log('Cognito User Access Token:', session.getAccessToken().getJwtToken());
+          //console.log('Cognito User Identity Token:', session.getIdToken().getJwtToken());
+          //console.log('Cognito User Refresh Token', session.getRefreshToken().getToken());
+		  
           this.setState({ stage: 0, email: '', password: '', code: '' });
           this.props.history.replace('/app');
         }
@@ -59,6 +60,7 @@ class SignIn extends React.Component {
         console.error('Auth.signIn(): ', err);
     }
   }
+  
 
   async onSubmitVerification(e) {
     e.preventDefault();

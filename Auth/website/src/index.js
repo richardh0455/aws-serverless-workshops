@@ -23,7 +23,7 @@ import awsConfig from './amplify-config';
 
 Amplify.configure(awsConfig);
 
-const isAuthenticated = () => Amplify.Auth.user !== null;
+const isAuthenticated = () => Amplify.Auth.currentAuthenticatedUser() !== null;
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route
