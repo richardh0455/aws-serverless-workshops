@@ -20,6 +20,8 @@ import { Auth, API } from 'aws-amplify';
 import awsConfig from '../amplify-config';
 import '../public/css/app.css';
 import '../public/css/gridforms.css';
+import logo from '../public/images/LTLogo.png';
+import OrderList from './OrderList';
 
 const customersAPI = 'CustomersAPI';
 const apiPath = '/all';
@@ -29,11 +31,14 @@ const productsAPI = 'ProductsAPI';
 class MainApp extends React.Component {
   constructor(props) {
     super(props);
+	var customer = JSON.parse(localStorage.getItem('customer'));
+	var shippingAddress = localStorage.getItem('shippingAddress');
+	
     this.state = {
       authToken: null,
       idToken: null,
-      requestRideEnabled: false,
-	  customer: null
+	  customer: customer,
+	  shippingAddress:shippingAddress
     };
   }
 
@@ -43,9 +48,12 @@ class MainApp extends React.Component {
     this.setState({ idToken: session.idToken.jwtToken });
 	const customers = await this.getCustomers();
 	this.setState({customers: customers.body})
-	const products = await this.getProducts();
-	this.setState({products: products.body})
+	
   }
+  
+  componentWillUnmount() {
+        localStorage.clear();
+    }
 
   /**
    * Determines if the API is enabled
@@ -56,15 +64,7 @@ class MainApp extends React.Component {
      const api = awsConfig.API.endpoints.filter(v => v.endpoint !== '');                                                   
      return (typeof api !== 'undefined');
   }
-  async getProducts() {
-	const apiRequest = {
-      headers: {
-        'Authorization': this.state.idToken,
-        'Content-Type': 'application/json'
-      }
-    };
-	return await API.get(productsAPI, apiPath, apiRequest)
-  }
+
   
   async getProductConfig(id) {
 	const apiRequest = {
@@ -96,38 +96,38 @@ class MainApp extends React.Component {
 	return await API.get(customersAPI, '/'+id, apiRequest)
   }
   
+
+  
   async handleCustomerChange(event) {
-	console.log(event.target.value);
 	var customer = await this.getCustomer(event.target.value);
-	console.log(customer.body)
 	this.setState({customer: customer.body})
+	
+	localStorage.setItem('customer', JSON.stringify(customer.body));
+	console.log('Customer Change');
+	console.log(JSON.stringify(customer.body));
+	
+	this.changeSelectedShippingAddress(-1);
+
   }
   
-  handleProductChange(event) {
-	console.log(event.target.value);
-	var productConfig = this.getProductConfig(event.target.value);
-	console.log(productConfig);
+  handleShippingAddressChange(event) {
+	this.changeSelectedShippingAddress(event.target.value)
   }
+  
+  changeSelectedShippingAddress(id) {
+	this.setState({shippingAddress: id})
+	localStorage.setItem('shippingAddress', id);
+  }
+  
 
+  
   async onClick() {
 
   }
-
+  
 
   render() {
-	var products = [];
-	if(this.state.products){
-		products = JSON.parse(this.state.products);
-	}
-	let productOptions = null;
-	try{
-		productOptions = products.map((product) =>
-                <option key={product.ID} value={product.ID}>{product.Name}</option>
-            );  
-	}catch(err)
-	{
-		console.log('Error rendering products: '+err);
-	}
+	
 	
 	var productConfigs = [];
 	if(this.state.productConfigs){
@@ -144,11 +144,15 @@ class MainApp extends React.Component {
 	}
 	
 	var customers = [];
+	
 	if(this.state.customers){
 		customers = JSON.parse(this.state.customers);
 	}
 
-	var customer = 	JSON.parse(this.state.customer);
+	var customer = null;
+	if(this.state.customer){
+		customer = JSON.parse(this.state.customer);
+	}	
 	
 	
 	let customerOptions = null;
@@ -163,68 +167,63 @@ class MainApp extends React.Component {
 			
 	let shippingAddresses = [];		
 	if(customer && "ShippingAddresses" in customer){
-		console.log(customer.ShippingAddresses)
 		shippingAddresses = customer.ShippingAddresses.map((address) => 
 				<option key={address.ShippingAddressID} value={address.ShippingAddressID}>{address.ShippingAddress}</option>
 			);
 	}
-    // If API is not configured, but auth is, then output the
-    // token.
+	//console.log("ShippingAddresses");
+	//console.log(JSON.stringify(customer.ShippingAddresses[0]));
+
+	var customerValue = '-1'
+	if(customer && "ContactInfo" in customer)
+	{
+		customerValue = customer.ContactInfo.CustomerID;
+	}
+	
+	var shippingAddress = '-1'
+	if(shippingAddresses.length == 1) {
+		shippingAddress = customer.ShippingAddresses[0].ShippingAddressID
+	}
+	else if(this.state.shippingAddress)
+	{
+		shippingAddress = this.state.shippingAddress;
+	}
+	console.log("ShippingAddress");
+	console.log(shippingAddress);
+	
     return (
-      <div>
+	<div className="app">
+	<header>
+          <img src={logo}/>
+        </header>
+      <section>
 	    <form className="grid-form">
           <fieldset>
-            <legend >Customer</legend>
+            <h2>Customer</h2>
             <div data-row-span="2">
               <div data-field-span="1" >
                 <label>Customer</label>
-                <select onChange={this.handleCustomerChange.bind(this)} >
-                  <option>Select a customer</option>
+                <select value={customerValue} onChange={this.handleCustomerChange.bind(this)} >
+                  <option key='-1' value="-1">Select a customer</option>
 				  {customerOptions}
                 </select>
               </div>
               <div data-field-span="1" >
                 <label>Shipping Address</label>
-                <select>
-                  <option>Select a Shipping Address</option>
+                <select value={shippingAddress} onChange={this.handleShippingAddressChange.bind(this)}>
+                  <option key='-1' value="-1">Select a Shipping Address</option>
 				  {shippingAddresses}
 
                 </select>
               </div>
             </div>
-            <legend >Product</legend>
-            <div data-row-span="4">
-              <div data-field-span="1" >
-                <label>Product</label>
-                <select onChange={this.handleProductChange.bind(this)}>
-                  <option>Select a product type</option>
-				  {productOptions}
-                </select>
-              </div>
-              <div data-field-span="1" >
-                <label>Configuration</label>
-                <select>
-                  <option>Select a product configuration</option>
-				  {productConfigOptions}
-                </select>
-              </div>
-              <div data-field-span="1" >
-                <label>Quantity</label>
-                <input type="text"/>
-              </div>
-              <div data-field-span="1" >
-                <label>Pricing</label>
-                <input type="text"/>
-              </div>
-              <div >
-                <b >Subtotal:</b>   
-              </div>    
-            </div>
-            <button >Add Product</button>
-              <ul><li ><b>Total:</b></li></ul>
-          </fieldset>
+			<div className="OrderList" style={{marginTop: 50 + 'px'}}>
+				<OrderList />
+			</div>
+		</fieldset>
         </form>
-      </div>
+      </section>
+	  </div>
       );
   }
   
