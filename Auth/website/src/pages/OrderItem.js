@@ -15,7 +15,9 @@ class OrderItem extends Component {
 	var order_item = JSON.parse(localStorage.getItem(this.props.item.key));
     this.state = {
 		product_name: order_item ? order_item.product_name : this.props.item.product_name, 
+		product_id: order_item ? order_item.product_id : this.props.item.product_id, 
 		variant: order_item ? order_item.variant : this.props.item.variant, 
+		variant_id: order_item ? order_item.variant_id : this.props.item.variant_id, 
 		quantity: order_item ? order_item.quantity : this.props.item.quantity, 
 		price: order_item ? order_item.price : this.props.item.price,
 		variants: variants
@@ -29,11 +31,37 @@ class OrderItem extends Component {
     this.onKeyPress = this.onKeyPress.bind(this);
   }	
   handleProductChange(event) {
-	this.saveState({product_name: event.target.value});  
+	console.log('Product Changed');
+	console.log(event.target.value);
+	this.saveState({product_name: event.target.value, product_id: this.findProductID(event.target.value)});  
+  }
+  
+  findProductID(product_name) {
+	var products = this.props.products; 
+	console.log("Looking for "+product_name);	
+	console.log(JSON.stringify(products));
+	for(var i = 0; i < products.length; i++) {
+		if(product_name === products[i].name){
+			console.log("Found match!");
+			console.log(JSON.stringify(products[i]));
+			return products[i].key;
+		}
+	}
+	return "0"  
   }
   
   handleVariantChange(event) {
-	this.saveState({variant: event.target.value});  
+	this.saveState({variant: event.target.value, variant_id: this.findVariantID(event.target.value)});  
+  }
+  
+  findVariantID(variant_name) {
+	var variants = this.state.variants;  
+	for(var i = 0; i < variants.length; i++) {
+		if(variant_name === variants[i].name){
+			return variants[i].key;
+		}
+	}
+	return -1;  
   }
   
   handleQuantityChange(event) {
@@ -46,7 +74,7 @@ class OrderItem extends Component {
   
   removeItem(event) {
 	event.preventDefault();
-	this.props.remove_item_handler(this.props.item.key, null)
+	this.props.update_item_handler(this.props.item.key, null)
   }
   
   onKeyPress(event) {
@@ -62,11 +90,11 @@ class OrderItem extends Component {
   
   saveState(state) {
 	this.setState(state)   
-	var order_item  = {product_name: this.state.product_name, variant: this.state.variant, quantity: this.state.quantity, price: this.state.price}
+	var order_item  = {product_name: this.state.product_name, product_id:this.state.product_id, variant: this.state.variant,variant_id: this.state.variant_id, quantity: this.state.quantity, price: this.state.price}
 	for(var key in state){
       order_item[key] = state[key];
 	} 
-	this.props.remove_item_handler(this.props.item.key, order_item)
+	this.props.update_item_handler(this.props.item.key, order_item)
 	localStorage.setItem(this.props.item.key, JSON.stringify(order_item));
    }
 	

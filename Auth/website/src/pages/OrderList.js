@@ -6,22 +6,12 @@ import * as Base64 from 'base-64';
 import logo from '../public/images/LTLogo.png';
 import { Auth, API } from 'aws-amplify';
 
-const order_items = [
-	{key:'0', product_name:'Default', variant:'No Variant', quantity:'100', price:'10'},
-	{key:'1', product_name:'Trix8', variant:'Red Label', quantity:'0', price:'0'},
-	{key:'2', product_name:'Dummy5', variant:'No Variant', quantity:'0', price:'0'},
-	{key:'3', product_name:'Default', variant:'Green Label, Multi Use', quantity:'0', price:'0'},
-	{key:'4', product_name:'Default', variant:'No Variant', quantity:'0', price:'0'},
-
-];
-
-
-
-
-
 
 const apiPath = '/all';
 const productsAPI = 'ProductsAPI';
+
+const createOrderPath = '/create';
+const orderAPI = 'OrderAPI';
 
 class OrderList extends Component {
 	constructor(props) {
@@ -32,7 +22,7 @@ class OrderList extends Component {
 	};
 	
     this.removeItem = this.removeItem.bind(this);
-    this.itemUpdate = this.itemUpdate.bind(this);
+    this.orderItemUpdated = this.orderItemUpdated.bind(this);
     this.addItem = this.addItem.bind(this);
     this.generatePDF = this.generatePDF.bind(this);
 	
@@ -59,6 +49,33 @@ class OrderList extends Component {
       };
 	  return await API.get(productsAPI, apiPath, apiRequest)
     }
+	
+	async createOrder() {
+		const apiRequest = {
+        headers: {
+          'Authorization': this.state.idToken,
+          'Content-Type': 'application/json'
+        },
+		body: {"customerID": "1", "invoiceLines": this.createOrderLines()}
+      };
+	  return await API.post(orderAPI, createOrderPath, apiRequest)
+	}
+	
+	createOrderLines() {
+		var lines =[]
+		var items = this.state.order_items;
+		for(var i = 0; i < items.length; i++) {
+			console.log(JSON.stringify(items[i]));
+			var item = items[i];
+			var variant_id = 0;
+			if(item.variant_id === -1) {
+				variant_id = 'NULL';
+			}
+				
+			lines.push({"ProductID":item.product_id, "VariationID": item.variant_id, "Quantity": item.quantity, "Price":item.price});
+		}
+		return lines;
+	}
    
    removeItem(key) {
 	  var items = this.state.order_items;
@@ -78,10 +95,7 @@ class OrderList extends Component {
    createOrderItem() {
 	var key = Number(this.state.counter) + 1;
 	var defaultProduct = JSON.parse(this.state.products)[0];
-	console.log('Creating Order Item');
-	console.log(JSON.stringify(defaultProduct));
-	console.log('End');
-	var default_item = {key:'0', product_name:defaultProduct.Name, variant:'No Variant', quantity:'0', price:'0'};
+	var default_item = {key:'0', product_name:defaultProduct.Name, product_id:defaultProduct.ID, variant:'No Variant', variant_id:'0', quantity:'0', price:'0'};
 	var cloneOfDefault = JSON.parse(JSON.stringify(default_item));
 	cloneOfDefault.key = key;
 	var items = this.state.order_items;
@@ -105,7 +119,8 @@ class OrderList extends Component {
 	  return total;
    }
    
-   itemUpdate(key, item) {
+   orderItemUpdated(key, item) {
+	   console.log('OrderItemUpdated');
 	   var items = this.state.order_items;
 	   for(var i = 0; i < items.length; i++) {
 		if(items[i].key === key) {
@@ -120,6 +135,7 @@ class OrderList extends Component {
    }
    
    generatePDF(event) {
+	console.log(this.createOrder());
 	event.preventDefault();   
 	var doc = new jsPDF();
 	var initX = 15;
@@ -179,7 +195,7 @@ class OrderList extends Component {
 	  <h2>Product</h2>
       <fieldset>
 		{this.state.order_items.map(item => (
-			<OrderItem key={item.key} item={item} products={products} remove_item_handler={this.itemUpdate} />
+			<OrderItem key={item.key} item={item} products={products} update_item_handler={this.orderItemUpdated} />
 		))}
 		
 		
