@@ -31,19 +31,13 @@ class OrderItem extends Component {
     this.onKeyPress = this.onKeyPress.bind(this);
   }	
   handleProductChange(event) {
-	console.log('Product Changed');
-	console.log(event.target.value);
 	this.saveState({product_name: event.target.value, product_id: this.findProductID(event.target.value)});  
   }
   
   findProductID(product_name) {
 	var products = this.props.products; 
-	console.log("Looking for "+product_name);	
-	console.log(JSON.stringify(products));
 	for(var i = 0; i < products.length; i++) {
 		if(product_name === products[i].name){
-			console.log("Found match!");
-			console.log(JSON.stringify(products[i]));
 			return products[i].key;
 		}
 	}
@@ -78,10 +72,7 @@ class OrderItem extends Component {
   }
   
   onKeyPress(event) {
-	  //this.props.on_key_press(this.props.item.key, event.which)
-	  console.log('Registered Key press '+this.props.item.key+' '+event.which)  
     if (event.which === 13 /* Enter */) {
-      console.log("Enter was Pressed");
 	  event.preventDefault()
     }
   }
