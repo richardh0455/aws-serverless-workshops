@@ -61,6 +61,7 @@ class SignIn extends React.Component {
     }
   }
   
+  
 
   async onSubmitVerification(e) {
     e.preventDefault();
@@ -113,8 +114,12 @@ class SignIn extends React.Component {
           <form id="registrationForm" onSubmit={(e) => this.onSubmitForm(e)}>
             <input className={isValidEmail?'valid':'invalid'} type="email" placeholder="Email" value={this.state.email} onChange={(e) => this.onEmailChanged(e)}/>
             <input className={isValidPassword?'valid':'invalid'} type="password" placeholder="Password" value={this.state.password} onChange={(e) => this.onPasswordChanged(e)}/>
-            <input disabled={!(isValidEmail && isValidPassword)} type="submit" value="Sign In"/>
+			<input disabled={!(isValidEmail && isValidPassword)} type="submit" value="Sign In"/>
           </form>
+		  <div id="buttonContainer">
+			<p id="portal">Don't have an account?</p>
+			<a href="/register">Register Here</a>
+		  </div>
         </section>
       </div>
     );
