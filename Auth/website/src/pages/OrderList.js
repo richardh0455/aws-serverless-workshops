@@ -7,11 +7,10 @@ import logo from '../public/images/LTLogo.png';
 import { Auth, API } from 'aws-amplify';
 
 
-const apiPath = '/all';
+const getAllProductsPath = '/all';
 const productsAPI = 'ProductsAPI';
 
-const createOrderPath = '/create';
-const orderAPI = 'OrderAPI';
+
 
 class OrderList extends Component {
 	constructor(props) {
@@ -36,7 +35,7 @@ class OrderList extends Component {
 	  this.setState({products: products.body})
 	  if (this.state.order_items === undefined || this.state.order_items.length == 0) 
 	  {
-		this.createOrderItem()
+		this.addOrderLine()
 	  }
     }
 	
@@ -47,25 +46,14 @@ class OrderList extends Component {
           'Content-Type': 'application/json'
         }
       };
-	  return await API.get(productsAPI, apiPath, apiRequest)
+	  return await API.get(productsAPI, getAllProductsPath, apiRequest)
     }
+
 	
-	async createOrder() {
-		const apiRequest = {
-        headers: {
-          'Authorization': this.state.idToken,
-          'Content-Type': 'application/json'
-        },
-		body: {"customerID": "1", "invoiceLines": this.createOrderLines()}
-      };
-	  return await API.post(orderAPI, createOrderPath, apiRequest)
-	}
-	
-	createOrderLines() {
+	buildInvoiceBody() {
 		var lines =[]
 		var items = this.state.order_items;
 		for(var i = 0; i < items.length; i++) {
-			console.log(JSON.stringify(items[i]));
 			var item = items[i];
 			var variant_id = 0;
 			if(item.variant_id === -1) {
@@ -89,10 +77,10 @@ class OrderList extends Component {
    
    addItem(event) {
 	event.preventDefault();
-	this.createOrderItem();
+	this.addOrderLine();
 	
    }
-   createOrderItem() {
+   addOrderLine() {
 	var key = Number(this.state.counter) + 1;
 	var defaultProduct = JSON.parse(this.state.products)[0];
 	var default_item = {key:'0', product_name:defaultProduct.Name, product_id:defaultProduct.ID, variant:'No Variant', variant_id:'0', quantity:'0', price:'0'};
@@ -120,7 +108,6 @@ class OrderList extends Component {
    }
    
    orderItemUpdated(key, item) {
-	   console.log('OrderItemUpdated');
 	   var items = this.state.order_items;
 	   for(var i = 0; i < items.length; i++) {
 		if(items[i].key === key) {
@@ -134,8 +121,12 @@ class OrderList extends Component {
 	  this.saveState({order_items: items});
    }
    
+   saveOrderAndGeneratePDF(event) {
+	   this.generatePDF(event);
+	   this.props.create_invoice_handler(this.buildInvoiceBody());
+   }
+   
    generatePDF(event) {
-	console.log(this.createOrder());
 	event.preventDefault();   
 	var doc = new jsPDF();
 	var initX = 15;
@@ -174,7 +165,6 @@ class OrderList extends Component {
 	   var returnProducts = [];
 	   
 	   for(var index in products) {
-		   console.log(JSON.stringify(products[index]));
 		   var formattedProduct = {key:products[index].ID, name:products[index].Name };
 		   returnProducts.push(formattedProduct);
 	   }
