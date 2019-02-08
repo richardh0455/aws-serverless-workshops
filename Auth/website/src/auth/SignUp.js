@@ -141,9 +141,15 @@ class SignUp extends React.Component {
             <input className={isValidEmail?'valid':'invalid'} type="email" placeholder="Email" value={this.state.email} onChange={(e) => this.onEmailChanged(e)}/>
             <input className={isValidPassword?'valid':'invalid'} type="password" placeholder="Password" value={this.state.password} onChange={(e) => this.onPasswordChanged(e)}/>
             <input className={isValidConfirmation?'valid':'invalid'} type="password" placeholder="Confirm Password" value={this.state.confirm} onChange={(e) => this.onConfirmationChanged(e)}/>
-            <input disabled={!(isValidEmail && isValidPassword && isValidConfirmation)} type="submit" value="Sign Up"/>
+			<input disabled={!(isValidEmail && isValidPassword && isValidConfirmation)} type="submit" value="Sign Up"/>
           </form>
+		  <div id="buttonContainer">
+			<p id="portal">Already have an account?</p>
+			<a href="/signin">Login</a>
+		  </div>
         </section>
+		
+		
       </div>
     );
   }

@@ -128,7 +128,7 @@
     border-radius: 40px;
     cursor: pointer;
     display: block;
-
+	
     font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
     font-size: 24px;
     opacity: 1;
@@ -144,6 +144,11 @@
     color: #062e71;
 }
 
+.app button[type=button]:hover {
+    background-color: white;
+    color: #062e71;
+}
+
 .app button[type=button] {
     width: 200px;
     background-color: #062e71;
@@ -154,7 +159,6 @@
     border-radius: 40px;
     cursor: pointer;
     display: block;
-
     font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
     font-size: 24px;
     opacity: 1;
@@ -164,12 +168,18 @@
     -webkit-transition: background-color 0.2s ease-in-out;
     transition: background-color 0.2s ease-in-out;
 }
+.app p[id="portal"]{
+	display: inline-block;
+	margin: 5px;
+}
 
 .app button[type=button] :hover {
     background-color: white;
     color: #062e71;
 }
-
+.app div[id=buttonContainer] {
+	text-align: center;
+}
 
 .app div[className=centered] {
 	display: block;
