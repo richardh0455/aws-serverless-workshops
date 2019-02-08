@@ -34,9 +34,10 @@ const orderAPI = 'OrderAPI';
 class MainApp extends React.Component {
   constructor(props) {
     super(props);
-	var customer = JSON.parse(localStorage.getItem('customer'));
+	
 	var shippingAddress = localStorage.getItem('shippingAddress');
 	
+	var customer = JSON.parse(localStorage.getItem('customer'));
     this.state = {
       authToken: null,
       idToken: null,
@@ -50,7 +51,7 @@ class MainApp extends React.Component {
     this.setState({ authToken: session.accessToken.jwtToken });
     this.setState({ idToken: session.idToken.jwtToken });
 	const customers = await this.getCustomers();
-	this.setState({customers: customers.body})
+	this.setState({customers: customers.body});
 	
   }
   
@@ -105,7 +106,7 @@ class MainApp extends React.Component {
           'Authorization': this.state.idToken,
           'Content-Type': 'application/json'
         },
-		body: {"customerID": this.state.customer.ID, "invoiceLines": invoiceLines}
+		body: {"customerID": JSON.parse(this.state.customer).ContactInfo.CustomerID, "invoiceLines": invoiceLines}
       };
 	  return await API.post(orderAPI, createOrderPath, apiRequest)
   }
@@ -114,11 +115,15 @@ class MainApp extends React.Component {
 
   
   async handleCustomerChange(event) {
+	  
+	  
 	var customer = await this.getCustomer(event.target.value);
+	
+	
 	this.setState({customer: customer.body})
 	
 	localStorage.setItem('customer', JSON.stringify(customer.body));
-	
+
 	this.changeSelectedShippingAddress(-1);
 
   }

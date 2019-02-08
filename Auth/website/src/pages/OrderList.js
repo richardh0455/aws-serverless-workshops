@@ -24,6 +24,7 @@ class OrderList extends Component {
     this.orderItemUpdated = this.orderItemUpdated.bind(this);
     this.addItem = this.addItem.bind(this);
     this.generatePDF = this.generatePDF.bind(this);
+    this.saveOrderAndGeneratePDF = this.saveOrderAndGeneratePDF.bind(this);
 	
 
 	}
@@ -121,13 +122,7 @@ class OrderList extends Component {
 	  this.saveState({order_items: items});
    }
    
-   saveOrderAndGeneratePDF(event) {
-	   this.generatePDF(event);
-	   this.props.create_invoice_handler(this.buildInvoiceBody());
-   }
-   
-   generatePDF(event) {
-	event.preventDefault();   
+   generatePDF() {
 	var doc = new jsPDF();
 	var initX = 15;
 	var initY = 50;
@@ -160,6 +155,14 @@ class OrderList extends Component {
 	doc.save('Order.pdf')
 	
    }
+   
+   saveOrderAndGeneratePDF(event) {
+	   event.preventDefault();  
+	   this.generatePDF();
+	   this.props.create_invoice_handler(this.buildInvoiceBody());
+   }
+   
+
    
    parseProducts(products) {   
 	   var returnProducts = [];
@@ -198,7 +201,7 @@ class OrderList extends Component {
 	  </div>
 	  
 	  <div>
-		<button onClick={this.generatePDF}>Generate PDF</button>
+		<button onClick={this.saveOrderAndGeneratePDF}>Generate PDF</button>
 	  </div>
 	</div>  
 
