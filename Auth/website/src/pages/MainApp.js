@@ -174,6 +174,7 @@ class MainApp extends React.Component {
 		currentlySelectedCustomerID = currentlySelectedCustomer.ContactInfo.CustomerID;
 	}
 	
+	var shippingAddresses =this.generateShippingAddressList(currentlySelectedCustomer);
 	var currentlySelectedShippingAddressID = '-1'
 	if(shippingAddresses.length == 1) {
 		currentlySelectedShippingAddressID = currentlySelectedCustomer.ShippingAddresses[0].ShippingAddressID
@@ -204,7 +205,7 @@ class MainApp extends React.Component {
                 <label>Shipping Address</label>
                 <select value={currentlySelectedShippingAddressID} onChange={this.handleShippingAddressChange.bind(this)}>
                   <option key='-1' value="-1">Select a Shipping Address</option>
-				  {this.generateShippingAddressList(currentlySelectedCustomer)}
+				  {shippingAddresses}
 
                 </select>
               </div>
