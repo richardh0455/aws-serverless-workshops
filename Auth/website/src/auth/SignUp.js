@@ -43,6 +43,10 @@ class SignUp extends React.Component {
 
   async onSubmitForm(e) {
     e.preventDefault();
+	if(this.state.password !== this.state.confirm) {
+		alert("Your passwords do not match.");
+		return 
+	}
     try {
       const params = {
         username: this.state.email,
@@ -53,7 +57,6 @@ class SignUp extends React.Component {
         validationData: []
       };
       const data = await Auth.signUp(params);
-      console.log(data);
 	  this.state.stage = 1;
 	  this.setLocalStorage(this.state);
     } catch (err) {
@@ -137,6 +140,7 @@ class SignUp extends React.Component {
         </header>
         <section className="form-wrap">
           <h1>Register</h1>
+		  <p>Your Password needs to have at least one of each: uppercase letter, lowercase letter and number, and be 8 characters long</p>
           <form id="registrationForm" onSubmit={(e) => this.onSubmitForm(e)}>
             <input className={isValidEmail?'valid':'invalid'} type="email" placeholder="Email" value={this.state.email} onChange={(e) => this.onEmailChanged(e)}/>
             <input className={isValidPassword?'valid':'invalid'} type="password" placeholder="Password" value={this.state.password} onChange={(e) => this.onPasswordChanged(e)}/>
