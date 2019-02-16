@@ -32,16 +32,35 @@ class SignIn extends React.Component {
       code: '',
       userObject: null
     };
+	
+  }
+  
+  async componentDidMount() {
+    this.checkCookie();
+    
+  }
+  
+  
+  checkCookie() {
+	//const user = await Auth.currentSession();
+	const user = ""
+	if (user != "") {
+		this.props.history.replace('/app');
+	}
   }
 
   async onSubmitForm(e) {
     e.preventDefault();
-    try {
+    this.performSignIn();
+  }
+  
+  async performSignIn() {
+	try {
         const userObject = await Auth.signIn(
           this.state.email,
           this.state.password
         );
-        console.log('userObject', userObject);
+        //console.log('userObject', userObject);
         if (userObject.challengeName) {
           // Auth challenges are pending prior to token issuance
           this.setState({ userObject, stage: 1 });
@@ -58,8 +77,13 @@ class SignIn extends React.Component {
     } catch (err) {
         alert(err.message);
         console.error('Auth.signIn(): ', err);
-    }
+    }  
+	  
   }
+
+
+  
+
   
   
 

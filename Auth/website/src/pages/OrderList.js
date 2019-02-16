@@ -92,6 +92,21 @@ class OrderList extends Component {
 	this.saveState({counter: key, order_items: items });   
    }
    
+   /*async putState() {
+	const apiRequest = {
+      headers: {
+        'Authorization': this.state.idToken,
+        'Content-Type': 'application/json'
+      }
+    };
+	
+	if(!this.state.sessionID) {
+		this.state.sessionID = '_' + Math.random().toString(36).substr(2, 9);
+	}
+	return await API.get(sessionAPI, '/'+this.state.sessionID, apiRequest) 
+	   
+   }*/
+   
    saveState(state) {
 	this.setState(state)   
 	for(var key in state){
