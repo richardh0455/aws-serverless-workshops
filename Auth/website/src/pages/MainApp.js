@@ -190,6 +190,7 @@ class MainApp extends React.Component {
   }
   
   
+
   render() {    
     var currentlySelectedCustomer = null;
     if(this.state.customer){
@@ -211,7 +212,6 @@ class MainApp extends React.Component {
     {
         currentlySelectedShippingAddressID = this.state.shippingAddress;
     }
-    
     return (
     <div className="app">
     <header>
