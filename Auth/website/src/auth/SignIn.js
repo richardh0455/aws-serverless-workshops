@@ -18,7 +18,7 @@ import DynamicImage from '../components/DynamicImage';
 import { withRouter } from 'react-router-dom';
 import logo from '../public/images/LTLogo.png';
 import '../public/css/app.css';
-
+import AmplifyStorage from './AmplifyStorage';
 /**
  * Sign-in Page
  */
@@ -37,6 +37,9 @@ class SignIn extends React.Component {
   
   async componentDidMount() {
     this.checkCookie();
+	Auth.configure({
+		storage: new AmplifyStorage()
+	});
     
   }
   
@@ -56,6 +59,7 @@ class SignIn extends React.Component {
   
   async performSignIn() {
 	try {
+		//console.log('Signing In');
         const userObject = await Auth.signIn(
           this.state.email,
           this.state.password
