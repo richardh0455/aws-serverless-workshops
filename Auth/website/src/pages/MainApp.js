@@ -36,14 +36,14 @@ class MainApp extends React.Component {
   constructor(props) {
     super(props);
     
-    var shippingAddress = localStorage.getItem('shippingAddress');
+    //var shippingAddress = localStorage.getItem('shippingAddress');
     
-    var customer = JSON.parse(localStorage.getItem('customer'));
+    //var customer = JSON.parse(localStorage.getItem('customer'));
     this.state = {
       authToken: null,
       idToken: null,
-      customer: customer,
-      shippingAddress:shippingAddress
+      customer: null,
+      shippingAddress:null
     };
   }
   
@@ -146,7 +146,7 @@ class MainApp extends React.Component {
     
     this.setState({customer: customer.body})
     
-    localStorage.setItem('customer', JSON.stringify(customer.body));
+    //localStorage.setItem('customer', JSON.stringify(customer.body));
 
     this.changeSelectedShippingAddress(-1);
 
@@ -158,7 +158,7 @@ class MainApp extends React.Component {
   
   changeSelectedShippingAddress(id) {
     this.setState({shippingAddress: id})
-    localStorage.setItem('shippingAddress', id);
+    //localStorage.setItem('shippingAddress', id);
   }
 
   generateCustomerList() {

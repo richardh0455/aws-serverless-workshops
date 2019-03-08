@@ -12,7 +12,7 @@ const variants = [
 class OrderItem extends Component {
   constructor(props) {
     super(props);
-	var order_item = JSON.parse(localStorage.getItem(this.props.item.key));
+	var order_item = null; /*JSON.parse(localStorage.getItem(this.props.item.key));*/
     this.state = {
 		product_name: order_item ? order_item.product_name : this.props.item.product_name, 
 		product_id: order_item ? order_item.product_id : this.props.item.product_id, 
@@ -86,7 +86,7 @@ class OrderItem extends Component {
       order_item[key] = state[key];
 	} 
 	this.props.update_item_handler(this.props.item.key, order_item)
-	localStorage.setItem(this.props.item.key, JSON.stringify(order_item));
+	//localStorage.setItem(this.props.item.key, JSON.stringify(order_item));
    }
 	
   render() { 

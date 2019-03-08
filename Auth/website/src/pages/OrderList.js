@@ -16,8 +16,8 @@ class OrderList extends Component {
 	constructor(props) {
     super(props);
 	this.state = {
-		counter: localStorage.getItem('counter') ? localStorage.getItem('counter') : '5',
-		order_items: localStorage.getItem('order_items') ? JSON.parse(localStorage.getItem('order_items')) : []
+		counter: /*localStorage.getItem('counter') ? localStorage.getItem('counter') :*/ '5',
+		order_items: /*localStorage.getItem('order_items') ? JSON.parse(localStorage.getItem('order_items')) :*/ []
 	};
 	
     this.removeItem = this.removeItem.bind(this);
@@ -109,9 +109,9 @@ class OrderList extends Component {
    
    saveState(state) {
 	this.setState(state)   
-	for(var key in state){
+	/*for(var key in state){
       localStorage.setItem(key, JSON.stringify(state[key]));
-	}   
+	} */  
    }
    
    calculateTotal(subtotals) {

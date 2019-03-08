@@ -13,12 +13,13 @@
  *  permissions and limitations under the License.
  */
 import React from 'react';
-import { Auth } from 'aws-amplify';
+import { Auth} from 'aws-amplify';
 import DynamicImage from '../components/DynamicImage';
 import { withRouter } from 'react-router-dom';
 import logo from '../public/images/LTLogo.png';
 import '../public/css/app.css';
-import AmplifyStorage from './AmplifyStorage';
+//import AmplifyStorage from './AmplifyStorage';
+import { AmplifyStorage } from './AmplifyStorage';
 /**
  * Sign-in Page
  */
@@ -32,14 +33,27 @@ class SignIn extends React.Component {
       code: '',
       userObject: null
     };
+	console.log("Configuring Storage");
+	Auth.configure({
+		cookieStorage: {
+        // REQUIRED - Cookie domain (only required if cookieStorage is provided)
+            domain: '.logtagorders.com',
+        // OPTIONAL - Cookie path
+            path: '/',
+        // OPTIONAL - Cookie expiration in days
+            expires: 1,
+        // OPTIONAL - Cookie secure flag
+        // Either true or false, indicating if the cookie transmission requires a secure protocol (https).
+            secure: true
+        }
+	});
 	
   }
   
   async componentDidMount() {
     this.checkCookie();
-	Auth.configure({
-		storage: new AmplifyStorage()
-	});
+	
+	
     
   }
   
@@ -76,7 +90,7 @@ class SignIn extends React.Component {
           //console.log('Cognito User Refresh Token', session.getRefreshToken().getToken());
 		  
           this.setState({ stage: 0, email: '', password: '', code: '' });
-          this.props.history.replace('/app');
+          //this.props.history.replace('/app');
         }
     } catch (err) {
         alert(err.message);

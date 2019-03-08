@@ -25,7 +25,7 @@ import '../public/css/app.css';
 class SignUp extends React.Component {
   constructor(props) {
     super(props);
-    this.state = JSON.parse(localStorage.getItem('SignUpState'))
+    //this.state = JSON.parse(localStorage.getItem('SignUpState'))
 	console.log(this.state)
 	if(!this.state || !this.state.stage)
 	{
@@ -188,7 +188,7 @@ class SignUp extends React.Component {
   setLocalStorage(jsonObj) {
 	  this.state=jsonObj;
 	  this.setState(jsonObj);
-	  localStorage.setItem('SignUpState', JSON.stringify(this.state))
+	  //localStorage.setItem('SignUpState', JSON.stringify(this.state))
 	  
   }
 }
