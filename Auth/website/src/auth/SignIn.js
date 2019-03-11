@@ -19,7 +19,8 @@ import { withRouter } from 'react-router-dom';
 import logo from '../public/images/LTLogo.png';
 import '../public/css/app.css';
 //import AmplifyStorage from './AmplifyStorage';
-import { AmplifyStorage } from './AmplifyStorage';
+//import { AmplifyStorage } from './AmplifyStorage';
+
 /**
  * Sign-in Page
  */
@@ -32,9 +33,10 @@ class SignIn extends React.Component {
       password: '',
       code: '',
       userObject: null
+	  
     };
-	console.log("Configuring Storage");
-	Auth.configure({
+	//console.log("Configuring Storage");
+	/*Auth.configure({
 		cookieStorage: {
         // REQUIRED - Cookie domain (only required if cookieStorage is provided)
             domain: '.logtagorders.com',
@@ -46,25 +48,25 @@ class SignIn extends React.Component {
         // Either true or false, indicating if the cookie transmission requires a secure protocol (https).
             secure: true
         }
-	});
+	});*/
 	
   }
   
   async componentDidMount() {
-    this.checkCookie();
+   // this.checkCookie();
 	
 	
     
   }
   
   
-  checkCookie() {
+ /* checkCookie() {
 	//const user = await Auth.currentSession();
 	const user = ""
 	if (user != "") {
 		this.props.history.replace('/app');
 	}
-  }
+  }*/
 
   async onSubmitForm(e) {
     e.preventDefault();
@@ -73,24 +75,24 @@ class SignIn extends React.Component {
   
   async performSignIn() {
 	try {
-		//console.log('Signing In');
+		console.log('Signing In');
         const userObject = await Auth.signIn(
           this.state.email,
           this.state.password
         );
-        //console.log('userObject', userObject);
+        console.log('userObject', userObject);
         if (userObject.challengeName) {
           // Auth challenges are pending prior to token issuance
           this.setState({ userObject, stage: 1 });
         } else {
           // No remaining auth challenges need to be satisfied
           const session = await Auth.currentSession();
-          //console.log('Cognito User Access Token:', session.getAccessToken().getJwtToken());
-          //console.log('Cognito User Identity Token:', session.getIdToken().getJwtToken());
-          //console.log('Cognito User Refresh Token', session.getRefreshToken().getToken());
+          console.log('Cognito User Access Token:', session.getAccessToken().getJwtToken());
+          console.log('Cognito User Identity Token:', session.getIdToken().getJwtToken());
+          console.log('Cognito User Refresh Token', session.getRefreshToken().getToken());
 		  
           this.setState({ stage: 0, email: '', password: '', code: '' });
-          //this.props.history.replace('/app');
+          this.props.history.replace('/app');
         }
     } catch (err) {
         alert(err.message);
@@ -114,9 +116,9 @@ class SignIn extends React.Component {
       );
       console.log('Cognito User Data:', data);
       const session = await Auth.currentSession();
-      // console.log('Cognito User Access Token:', session.getAccessToken().getJwtToken());
+      console.log('Cognito User Access Token:', session.getAccessToken().getJwtToken());
       console.log('Cognito User Identity Token:', session.getIdToken().getJwtToken());
-      // console.log('Cognito User Refresh Token', session.getRefreshToken().getToken());
+      console.log('Cognito User Refresh Token', session.getRefreshToken().getToken());
       this.setState({ stage: 0, email: '', password: '', code: '' });
       this.props.history.replace('/app');
     } catch (err) {
@@ -141,6 +143,8 @@ class SignIn extends React.Component {
     var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(String(email).toLowerCase());
   }
+  
+
 
   renderSignIn() {
     const isValidEmail = this.isValidEmail(this.state.email);
@@ -162,8 +166,9 @@ class SignIn extends React.Component {
 			<p id="portal">Don't have an account?</p>
 			<a href="/register">Register Here</a>
 		  </div>
-        </section>
-      </div>
+		</section>
+
+	  </div>
     );
   }
 
@@ -182,6 +187,8 @@ class SignIn extends React.Component {
             <input className={isValidEmail?'valid':'invalid'} type="email" placeholder="Email" value={this.state.email}/>
             <input className={isValidCode?'valid':'invalid'} type="text" placeholder="Verification Code" value={this.state.code} onChange={(e) => this.onCodeChanged(e)}/>
             <input disabled={!(isValidCode&&isValidEmail)} type="submit" value="Verify"/>
+			
+			
           </form>
         </section>
       </div>

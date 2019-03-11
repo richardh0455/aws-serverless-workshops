@@ -22,7 +22,7 @@ import '../public/css/app.css';
 import '../public/css/gridforms.css';
 import logo from '../public/images/LTLogo.png';
 import OrderList from './OrderList';
-
+import Popup  from './Popup';
 
 const customersAPI = 'CustomersAPI';
 const getAllPath = '/all';
@@ -43,10 +43,12 @@ class MainApp extends React.Component {
       authToken: null,
       idToken: null,
       customer: null,
-      shippingAddress:null
+      shippingAddress:null,
+	  showProductPopup: false,
+	  showCustomerPopup: false
     };
   }
-  
+  /*
   setCookie(cname, cvalue, exdays) {
     var d = new Date();
     d.setTime(d.getTime() + (exdays*24*60*60*1000));
@@ -68,7 +70,7 @@ class MainApp extends React.Component {
 		}
 	}
 	return "";
-  }
+  }*/
 
   async componentDidMount() {
     const session = await Auth.currentSession();
@@ -190,6 +192,22 @@ class MainApp extends React.Component {
     return shippingAddresses;  
   }
   
+  togglePopup(name) {
+	console.log('Toggle popup');  
+	console.log(name);  
+	console.log(!this.state[name]);  
+    this.setState({
+      [name]: !this.state[name]
+    });
+  }
+  
+  toggleProductPopup() {
+	this.togglePopup('showProductPopup');  
+  }
+  
+  toggleCustomerPopup() {
+	this.togglePopup('showCustomerPopup');  
+  }
   
 
   render() {    
@@ -213,11 +231,26 @@ class MainApp extends React.Component {
     {
         currentlySelectedShippingAddressID = this.state.shippingAddress;
     }
+
     return (
     <div className="app">
     <header>
           <img src={logo}/>
         </header>
+	      {this.state.showProductPopup ? 
+          <Popup
+            text='Close Me'
+            closePopup={this.toggleProductPopup.bind(this)}
+          />
+          : null
+        }      
+		{this.state.showCustomerPopup ? 
+          <Popup
+            text='Close Me'
+            closePopup={this.toggleCustomerPopup.bind(this)}
+          />
+          : null
+        }	
       <section>
         <form className="grid-form">
           <fieldset>
@@ -245,6 +278,8 @@ class MainApp extends React.Component {
         </fieldset>
         </form>
       </section>
+	  <button onClick={this.toggleProductPopup.bind(this)}>Create Product</button>
+	  
       </div>
       );
   }
