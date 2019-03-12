@@ -22,7 +22,8 @@ import '../public/css/app.css';
 import '../public/css/gridforms.css';
 import logo from '../public/images/LTLogo.png';
 import OrderList from './OrderList';
-import Popup  from './Popup';
+import CreateCustomerPopup  from './CreateCustomerPopup';
+import CreateProductPopup  from './CreateProductPopup';
 
 const customersAPI = 'CustomersAPI';
 const getAllPath = '/all';
@@ -158,7 +159,7 @@ class MainApp extends React.Component {
         },
         body: {"Name": name, "Description": description, "CostPrice":costPrice.toString()}
       };
-      return await API.post(productAPI, createPath, apiRequest)
+      return await API.post(productsAPI, createPath, apiRequest)
   }
   
 
@@ -264,14 +265,14 @@ class MainApp extends React.Component {
           <img src={logo}/>
         </header>
 	      {this.state.showProductPopup ? 
-          <Popup
+          <CreateProductPopup
             text='Close Me'
             closePopup={this.toggleProductPopup.bind(this)}
           />
           : null
         }      
 		{this.state.showCustomerPopup ? 
-          <Popup
+          <CreateCustomerPopup
             text='Close Me'
             closePopup={this.toggleCustomerPopup.bind(this)}
           />
@@ -281,6 +282,7 @@ class MainApp extends React.Component {
         <form className="grid-form">
           <fieldset>
             <h2>Customer</h2>
+			<button onClick={this.toggleCustomerPopup.bind(this)}>Create Customer</button>
             <div data-row-span="2">
               <div data-field-span="1" >
                 <label>Customer</label>
@@ -299,12 +301,14 @@ class MainApp extends React.Component {
               </div>
             </div>
             <div className="OrderList" style={{marginTop: 50 + 'px'}}>
+				<h2>Product</h2>
+				<button onClick={this.toggleProductPopup.bind(this)}>Create Product</button>
                 <OrderList create_invoice_handler={this.createInvoice.bind(this)} />
             </div>
         </fieldset>
         </form>
       </section>
-	  <button onClick={this.toggleProductPopup.bind(this)}>Create Product</button>
+	  
 	  
       </div>
       );

@@ -200,7 +200,7 @@ class OrderList extends Component {
 	   
     return (
 	<div className = "OrderList">
-	  <h2>Product</h2>
+	  
       <fieldset>
 		{this.state.order_items.map(item => (
 			<OrderItem key={item.key} item={item} products={products} update_item_handler={this.orderItemUpdated} />
