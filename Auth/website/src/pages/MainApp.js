@@ -29,7 +29,7 @@ const getAllPath = '/all';
 
 const productsAPI = 'ProductsAPI';
 
-const createOrderPath = '/create';
+const createPath = '/create';
 const orderAPI = 'OrderAPI';
 
 class MainApp extends React.Component {
@@ -126,6 +126,18 @@ class MainApp extends React.Component {
     return await API.get(customersAPI, '/'+id, apiRequest)
   }
   
+  async createCustomer(name, email, billing_address, region) {
+        const apiRequest = {
+        headers: {
+          'Authorization': this.state.idToken,
+          'Content-Type': 'application/json'
+        },
+        body: {"Name": name, "EmailAddress": email, "BillingAddress":billing_address, "Region":region}
+      };
+      return await API.post(customersAPI, createPath, apiRequest)
+  }
+  
+  
   async createInvoice(invoiceLines) {
         const apiRequest = {
         headers: {
@@ -134,8 +146,22 @@ class MainApp extends React.Component {
         },
         body: {"customerID": JSON.parse(this.state.customer).ContactInfo.CustomerID, "invoiceLines": invoiceLines}
       };
-      return await API.post(orderAPI, createOrderPath, apiRequest)
+      return await API.post(orderAPI, createPath, apiRequest)
   }
+  
+  
+  async createProduct(name, description, costPrice) {
+        const apiRequest = {
+        headers: {
+          'Authorization': this.state.idToken,
+          'Content-Type': 'application/json'
+        },
+        body: {"Name": name, "Description": description, "CostPrice":costPrice.toString()}
+      };
+      return await API.post(productAPI, createPath, apiRequest)
+  }
+  
+
   
   
 
