@@ -229,11 +229,13 @@ class MainApp extends React.Component {
   }
   
   toggleProductPopup() {
-	this.togglePopup('showProductPopup');  
+	//this.togglePopup('showProductPopup');
+	this.props.history.replace('/product');
   }
   
   toggleCustomerPopup() {
-	this.togglePopup('showCustomerPopup');  
+	//this.togglePopup('showCustomerPopup');
+	this.props.history.replace('/customer');
   }
   
 
@@ -264,7 +266,7 @@ class MainApp extends React.Component {
     <header>
           <img src={logo}/>
         </header>
-	      {this.state.showProductPopup ? 
+	     /* {this.state.showProductPopup ? 
           <CreateProductPopup
             text='Close Me'
             closePopup={this.toggleProductPopup.bind(this)}
@@ -277,12 +279,12 @@ class MainApp extends React.Component {
             closePopup={this.toggleCustomerPopup.bind(this)}
           />
           : null
-        }	
+        }	*/
       <section>
         <form className="grid-form">
           <fieldset>
             <h2>Customer</h2>
-			<button onClick={this.toggleCustomerPopup.bind(this)}>Create Customer</button>
+			<button onClick={this.toggleCustomerPopup.bind(this)} >Create Customer</button>
             <div data-row-span="2">
               <div data-field-span="1" >
                 <label>Customer</label>

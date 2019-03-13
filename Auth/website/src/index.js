@@ -15,7 +15,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
-import { Home, FAQ, Investors, MainApp, Unicorns, Profile } from './pages';
+import {MainApp, CreateCustomerPopup, CreateProductPopup} from './pages';
 import { SignIn, SignUp } from './auth';
 import 'normalize.css';
 import Amplify from 'aws-amplify';
@@ -44,6 +44,8 @@ class App extends React.Component {
           <Route path="/register" component={SignUp} />
 	      <Route path="/signin" component={SignIn} />
           <PrivateRoute path="/app" component={MainApp} />
+		  <PrivateRoute path="/customer" component={CreateCustomerPopup} />
+		  <PrivateRoute path="/product" component={CreateProductPopup} />
         </Switch>
       </BrowserRouter>
     );
