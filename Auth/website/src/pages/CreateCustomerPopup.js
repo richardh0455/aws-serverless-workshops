@@ -1,5 +1,5 @@
 import React from 'react';
-
+import logo from '../public/images/LTLogo.png';
 class CreateCustomerPopup extends React.Component {
   constructor(props) {
     super(props);
@@ -31,7 +31,7 @@ class CreateCustomerPopup extends React.Component {
 			</div>
 			<div data-field-span="1">
 				<label>Region</label>
-				<select value="NZ" onChange={}>
+				<select value="NZ">
                   <option key='1' value="NZ">Select a Region</option>
                   <option key='2' value="SA">SA</option>
                   <option key='3' value="NA">NA</option>
@@ -41,8 +41,6 @@ class CreateCustomerPopup extends React.Component {
                   
                 </select>
 			</div>
-
-            </div>
         </fieldset>
         </form>
       </section>

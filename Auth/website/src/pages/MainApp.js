@@ -245,7 +245,7 @@ class MainApp extends React.Component {
         currentlySelectedCustomer = JSON.parse(this.state.customer);
     }    
     
-    var currentlySelectedCustomerID = '-1'
+    var currentlySelectedCustomerID = '0'
     if(currentlySelectedCustomer && "ContactInfo" in currentlySelectedCustomer)
     {
         currentlySelectedCustomerID = currentlySelectedCustomer.ContactInfo.CustomerID;
@@ -288,8 +288,8 @@ class MainApp extends React.Component {
             <div data-row-span="2">
               <div data-field-span="1" >
                 <label>Customer</label>
-                <select value={currentlySelectedCustomerID} onChange={this.handleCustomerChange.bind(this)} >
-                  <option key='-1' value="-1">Select a customer</option>
+                <select onChange={this.handleCustomerChange.bind(this)} >
+				  <option value="" disabled selected >Select a customer</option>
                   {this.generateCustomerList()}
                 </select>
               </div>
