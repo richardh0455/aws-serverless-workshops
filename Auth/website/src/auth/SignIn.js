@@ -15,11 +15,9 @@
 import React from 'react';
 import { Auth} from 'aws-amplify';
 import DynamicImage from '../components/DynamicImage';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Redirect } from 'react-router-dom';
 import logo from '../public/images/LTLogo.png';
 import '../public/css/app.css';
-//import AmplifyStorage from './AmplifyStorage';
-//import { AmplifyStorage } from './AmplifyStorage';
 
 /**
  * Sign-in Page
@@ -35,20 +33,6 @@ class SignIn extends React.Component {
       userObject: null
 	  
     };
-	//console.log("Configuring Storage");
-	/*Auth.configure({
-		cookieStorage: {
-        // REQUIRED - Cookie domain (only required if cookieStorage is provided)
-            domain: '.logtagorders.com',
-        // OPTIONAL - Cookie path
-            path: '/',
-        // OPTIONAL - Cookie expiration in days
-            expires: 1,
-        // OPTIONAL - Cookie secure flag
-        // Either true or false, indicating if the cookie transmission requires a secure protocol (https).
-            secure: true
-        }
-	});*/
 	
   }
   
@@ -60,13 +44,19 @@ class SignIn extends React.Component {
   }
   
   
- /* checkCookie() {
-	//const user = await Auth.currentSession();
-	const user = ""
-	if (user != "") {
-		this.props.history.replace('/app');
-	}
-  }*/
+  renderRedirect = () => {
+    if (this.state.redirect) {
+      return <Redirect to='/app' />
+    }
+  }
+  
+  setRedirect = () => {
+    this.setState({
+      redirect: true
+    })
+  }
+  
+
 
   async onSubmitForm(e) {
     e.preventDefault();
@@ -75,24 +65,23 @@ class SignIn extends React.Component {
   
   async performSignIn() {
 	try {
-		console.log('Signing In');
         const userObject = await Auth.signIn(
           this.state.email,
           this.state.password
         );
-        console.log('userObject', userObject);
         if (userObject.challengeName) {
           // Auth challenges are pending prior to token issuance
           this.setState({ userObject, stage: 1 });
         } else {
           // No remaining auth challenges need to be satisfied
           const session = await Auth.currentSession();
-          console.log('Cognito User Access Token:', session.getAccessToken().getJwtToken());
-          console.log('Cognito User Identity Token:', session.getIdToken().getJwtToken());
-          console.log('Cognito User Refresh Token', session.getRefreshToken().getToken());
+          //console.log('Cognito User Access Token:', session.getAccessToken().getJwtToken());
+          //console.log('Cognito User Identity Token:', session.getIdToken().getJwtToken());
+          //console.log('Cognito User Refresh Token', session.getRefreshToken().getToken());
 		  
           this.setState({ stage: 0, email: '', password: '', code: '' });
-          this.props.history.replace('/app');
+          //this.props.history.replace('/app');
+		  this.setRedirect();
         }
     } catch (err) {
         alert(err.message);
@@ -114,11 +103,11 @@ class SignIn extends React.Component {
         this.state.userObject,
         this.state.code
       );
-      console.log('Cognito User Data:', data);
+      //console.log('Cognito User Data:', data);
       const session = await Auth.currentSession();
-      console.log('Cognito User Access Token:', session.getAccessToken().getJwtToken());
-      console.log('Cognito User Identity Token:', session.getIdToken().getJwtToken());
-      console.log('Cognito User Refresh Token', session.getRefreshToken().getToken());
+      //console.log('Cognito User Access Token:', session.getAccessToken().getJwtToken());
+      //console.log('Cognito User Identity Token:', session.getIdToken().getJwtToken());
+      //console.log('Cognito User Refresh Token', session.getRefreshToken().getToken());
       this.setState({ stage: 0, email: '', password: '', code: '' });
       this.props.history.replace('/app');
     } catch (err) {
@@ -157,6 +146,7 @@ class SignIn extends React.Component {
         </header>
         <section className="form-wrap">
           <h1>Sign in</h1>
+		  {this.renderRedirect()}
           <form id="registrationForm" onSubmit={(e) => this.onSubmitForm(e)}>
             <input className={isValidEmail?'valid':'invalid'} type="email" placeholder="Email" value={this.state.email} onChange={(e) => this.onEmailChanged(e)}/>
             <input className={isValidPassword?'valid':'invalid'} type="password" placeholder="Password" value={this.state.password} onChange={(e) => this.onPasswordChanged(e)}/>

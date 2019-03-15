@@ -1,38 +1,14 @@
 import React from 'react';
 import logo from '../public/images/LTLogo.png';
-import Amplify from 'aws-amplify';
-import '../public/css/app.css';
-import '../public/css/gridforms.css';
-
-import { Auth, API } from 'aws-amplify';
-import { withAuthenticator } from 'aws-amplify-react';
-import { withRouter} from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 
 class CreateCustomerPopup extends React.Component {
-  constructor(props) {
-    super(props);
-	
-	this.state = {
-      authToken: null,
-      idToken: null
-    };
-  }
   
   async componentDidMount() {
-    /*Auth.currentSession()
-    .then(data => {
-			this.setState({ authToken: data.accessToken.jwtToken });
-			this.setState({ idToken: data.idToken.jwtToken });
-		})
-    .catch(err =>{
-		console.log('CreateCustomerPopup')
-		console.log(err)
-	}
-	);*/
-	
-	const authedUser = await Auth.currentAuthenticatedUser();
-    console.log(authedUser) 
-    
+    const session = JSON.parse(sessionStorage.getItem("session"));
+    this.setState({ authToken: session.accessToken.jwtToken });
+    this.setState({ idToken: session.idToken.jwtToken });
+
     
   }
   
@@ -43,7 +19,6 @@ class CreateCustomerPopup extends React.Component {
   }
   
   render() {
-	  
     return (
       <div className="app">
     <header>

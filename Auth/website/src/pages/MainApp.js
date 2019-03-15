@@ -13,8 +13,6 @@
  *  permissions and limitations under the License.
  */
 import React from 'react';
-import BaseMap from '../components/BaseMap';
-import ESRIMap from '../components/ESRIMap';
 import Amplify from 'aws-amplify';
 import { Auth, API } from 'aws-amplify';
 import awsConfig from '../amplify-config';
@@ -24,6 +22,7 @@ import logo from '../public/images/LTLogo.png';
 import OrderList from './OrderList';
 import CreateCustomerPopup  from './CreateCustomerPopup';
 import CreateProductPopup  from './CreateProductPopup';
+import { withRouter, Link } from 'react-router-dom'
 
 const customersAPI = 'CustomersAPI';
 const getAllPath = '/all';
@@ -37,9 +36,6 @@ class MainApp extends React.Component {
   constructor(props) {
     super(props);
     
-    //var shippingAddress = localStorage.getItem('shippingAddress');
-    
-    //var customer = JSON.parse(localStorage.getItem('customer'));
     this.state = {
       authToken: null,
       idToken: null,
@@ -49,36 +45,15 @@ class MainApp extends React.Component {
 	  showCustomerPopup: false
     };
   }
-  /*
-  setCookie(cname, cvalue, exdays) {
-    var d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    var expires = "expires="+ d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-  }
-  
-  getCookie(cname) {
-	var name = cname + "=";
-	var decodedCookie = decodeURIComponent(document.cookie);
-	var ca = decodedCookie.split(';');
-	for(var i = 0; i <ca.length; i++) {
-		var c = ca[i];
-		while (c.charAt(0) == ' ') {
-			c = c.substring(1);
-		}
-		if (c.indexOf(name) == 0) {
-			return c.substring(name.length, c.length);
-		}
-	}
-	return "";
-  }*/
+
 
   async componentDidMount() {
     const session = await Auth.currentSession();
+	sessionStorage.setItem('session', JSON.stringify(session));
+	console.log(session);
     this.setState({ authToken: session.accessToken.jwtToken });
     this.setState({ idToken: session.idToken.jwtToken });
     const customers = await this.getCustomers();
-    this.setState({customers: customers.body});
     
   }
   
@@ -114,7 +89,16 @@ class MainApp extends React.Component {
         'Content-Type': 'application/json'
       }
     };
-    return await API.get(customersAPI, getAllPath, apiRequest)
+    API.get(customersAPI, getAllPath, apiRequest).then(response => {
+		this.setState({customers: response.body});
+		return response.body
+	}).catch(error => {
+		console.log(error.response)
+		if(error.response.status == 401){
+			alert('Please Sign In')
+			//this.props.history.replace('/signin');
+		}
+	});
   }
   
   async getCustomer(id) {
@@ -161,12 +145,7 @@ class MainApp extends React.Component {
       };
       return await API.post(productsAPI, createPath, apiRequest)
   }
-  
 
-  
-  
-
-  
   async handleCustomerChange(event) {
       
       
@@ -175,7 +154,6 @@ class MainApp extends React.Component {
     
     this.setState({customer: customer.body})
     
-    //localStorage.setItem('customer', JSON.stringify(customer.body));
 
     this.changeSelectedShippingAddress(-1);
 
@@ -187,7 +165,7 @@ class MainApp extends React.Component {
   
   changeSelectedShippingAddress(id) {
     this.setState({shippingAddress: id})
-    //localStorage.setItem('shippingAddress', id);
+
   }
 
   generateCustomerList() {
@@ -237,10 +215,10 @@ class MainApp extends React.Component {
 	//this.togglePopup('showCustomerPopup');
 	this.props.history.replace('/customer');
   }
-  
 
   render() {    
     var currentlySelectedCustomer = null;
+
     if(this.state.customer){
         currentlySelectedCustomer = JSON.parse(this.state.customer);
     }    
@@ -266,25 +244,12 @@ class MainApp extends React.Component {
     <header>
           <img src={logo}/>
         </header>
-	     /* {this.state.showProductPopup ? 
-          <CreateProductPopup
-            text='Close Me'
-            closePopup={this.toggleProductPopup.bind(this)}
-          />
-          : null
-        }      
-		{this.state.showCustomerPopup ? 
-          <CreateCustomerPopup
-            text='Close Me'
-            closePopup={this.toggleCustomerPopup.bind(this)}
-          />
-          : null
-        }	*/
       <section>
         <form className="grid-form">
           <fieldset>
             <h2>Customer</h2>
-			<button onClick={this.toggleCustomerPopup.bind(this)} >Create Customer</button>
+
+			<Link to='/customer'>Create Customer</Link>
             <div data-row-span="2">
               <div data-field-span="1" >
                 <label>Customer</label>
@@ -295,8 +260,8 @@ class MainApp extends React.Component {
               </div>
               <div data-field-span="1" >
                 <label>Shipping Address</label>
-                <select value={currentlySelectedShippingAddressID} onChange={this.handleShippingAddressChange.bind(this)}>
-                  <option key='-1' value="-1">Select a Shipping Address</option>
+                <select onChange={this.handleShippingAddressChange.bind(this)}>
+                  <option value="" disabled selected >Select a Shipping Address</option>
                   {shippingAddresses}
 
                 </select>
@@ -320,4 +285,4 @@ class MainApp extends React.Component {
 
 }
 
-export default MainApp;
+export default withRouter(MainApp);
