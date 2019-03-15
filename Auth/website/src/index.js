@@ -44,8 +44,6 @@ class App extends React.Component {
           <Route path="/register" component={SignUp} />
 	      <Route path="/signin" component={SignIn} />
           <PrivateRoute path="/app" component={MainApp} />
-		  <PrivateRoute path="/customer" component={CreateCustomerPopup} />
-		  <PrivateRoute path="/product" component={CreateProductPopup} />
         </Switch>
       </BrowserRouter>
     );

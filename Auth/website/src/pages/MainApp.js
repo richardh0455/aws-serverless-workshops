@@ -22,6 +22,7 @@ import logo from '../public/images/LTLogo.png';
 import OrderList from './OrderList';
 import CreateCustomerPopup  from './CreateCustomerPopup';
 import CreateProductPopup  from './CreateProductPopup';
+import Accordian  from './Accordian';
 import { withRouter, Link } from 'react-router-dom'
 
 const customersAPI = 'CustomersAPI';
@@ -110,18 +111,7 @@ class MainApp extends React.Component {
     };
     return await API.get(customersAPI, '/'+id, apiRequest)
   }
-  
-  async createCustomer(name, email, billing_address, region) {
-        const apiRequest = {
-        headers: {
-          'Authorization': this.state.idToken,
-          'Content-Type': 'application/json'
-        },
-        body: {"Name": name, "EmailAddress": email, "BillingAddress":billing_address, "Region":region}
-      };
-      return await API.post(customersAPI, createPath, apiRequest)
-  }
-  
+   
   
   async createInvoice(invoiceLines) {
         const apiRequest = {
@@ -134,16 +124,32 @@ class MainApp extends React.Component {
       return await API.post(orderAPI, createPath, apiRequest)
   }
   
+  async createCustomer(e, customer) {
+	e.preventDefault();
+    const apiRequest = {
+        headers: {
+          'Authorization': this.state.idToken,
+          'Content-Type': 'application/json'
+        },
+        body: {"Name": customer.name, "EmailAddress": customer.email, "BillingAddress": customer.address, "Region": customer.region}
+    };
+      API.post(customersAPI, createPath, apiRequest).then(response => {}).catch(err => {alert('Error Creating Customer: '+err)})
+	  
+	  
+  }
+ 
   
-  async createProduct(name, description, costPrice) {
+  
+  async createProduct(e, product) {
+	  e.preventDefault();
         const apiRequest = {
         headers: {
           'Authorization': this.state.idToken,
           'Content-Type': 'application/json'
         },
-        body: {"Name": name, "Description": description, "CostPrice":costPrice.toString()}
+        body: {"Name": product.name, "Description": product.description, "CostPrice":product.cost_price}
       };
-      return await API.post(productsAPI, createPath, apiRequest)
+      API.post(productsAPI, createPath, apiRequest).then(response => {}).catch(err => {alert('Error Creating Product: '+err)})
   }
 
   async handleCustomerChange(event) {
@@ -248,8 +254,6 @@ class MainApp extends React.Component {
         <form className="grid-form">
           <fieldset>
             <h2>Customer</h2>
-
-			<Link to='/customer'>Create Customer</Link>
             <div data-row-span="2">
               <div data-field-span="1" >
                 <label>Customer</label>
@@ -269,13 +273,19 @@ class MainApp extends React.Component {
             </div>
             <div className="OrderList" style={{marginTop: 50 + 'px'}}>
 				<h2>Product</h2>
-				<button onClick={this.toggleProductPopup.bind(this)}>Create Product</button>
                 <OrderList create_invoice_handler={this.createInvoice.bind(this)} />
             </div>
         </fieldset>
         </form>
       </section>
-	  
+	  <Accordian>
+		<div label="Create Customer">
+			<CreateCustomerPopup create_customer_handler={this.createCustomer.bind(this)} />
+		</div>	
+        <div label='Create Product'>
+          <CreateProductPopup create_product_handler={this.createProduct.bind(this)} />
+		</div>	
+      </Accordian>
 	  
       </div>
       );
