@@ -1,6 +1,7 @@
 import React from 'react';
 import logo from '../public/images/LTLogo.png';
-import { withRouter } from 'react-router-dom'
+import { withRouter } from 'react-router-dom';
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 
 class CreateProductPopup extends React.Component{
   
@@ -10,7 +11,7 @@ class CreateProductPopup extends React.Component{
     this.state = {
       name: '',
       description: '',
-      cost_price: ''
+      cost_price: '0'
     };
 	this.handleNameChange = this.handleNameChange.bind(this);
 	this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
@@ -43,7 +44,14 @@ class CreateProductPopup extends React.Component{
   }
   
   async createProduct(e) { 
-	this.props.create_product_handler(e, {name:this.state.name, description:this.state.description, cost_price:this.state.cost_price  });  
+	const response = this.props.create_product_handler(e, {name:this.state.name, description:this.state.description, cost_price:this.state.cost_price  }); 
+	if(response) {
+		this.setState({
+			name:'',
+			description:'',
+			cost_price:'0'
+		})
+	}	
   }
   
   
@@ -57,17 +65,17 @@ class CreateProductPopup extends React.Component{
 			<div data-row-span="2">
             <div data-field-span="1">
 				<label>Product Name</label>
-				<input type="text" defaultValue="Product Name" onChange={this.handleNameChange} />
+				<input type="text" value={this.state.name} onChange={this.handleNameChange} />
 			</div>
 			<div data-field-span="1">
 				<label>Description</label>
-				<input type="text" defaultValue="Description" onChange={this.handleDescriptionChange} />
+				<input type="text" value={this.state.description} onChange={this.handleDescriptionChange} />
 			</div>
 			</div>
 			<div data-row-span="1">
 			<div data-field-span="1">
 				<label>Cost Price</label>
-				<input type="text" defaultValue="0"  onChange={this.handlePriceChange} />
+				<input type="text" value={this.state.cost_price}  onChange={this.handlePriceChange} />
 			</div>
 			</div>
 
@@ -76,6 +84,7 @@ class CreateProductPopup extends React.Component{
 			<button onClick={(e) => {this.createProduct(e)} }>Create Product</button>
 		</div>
         </form>
+		<NotificationContainer/>
       </section>
 	  
 	  

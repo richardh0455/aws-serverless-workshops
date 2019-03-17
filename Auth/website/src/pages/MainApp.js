@@ -23,7 +23,8 @@ import OrderList from './OrderList';
 import CreateCustomerPopup  from './CreateCustomerPopup';
 import CreateProductPopup  from './CreateProductPopup';
 import Accordian  from './Accordian';
-import { withRouter, Link } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom';
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 
 const customersAPI = 'CustomersAPI';
 const getAllPath = '/all';
@@ -36,6 +37,8 @@ const orderAPI = 'OrderAPI';
 class MainApp extends React.Component {
   constructor(props) {
     super(props);
+	
+	Amplify.Logger.LOG_LEVEL = 'DEBUG';
     
     this.state = {
       authToken: null,
@@ -131,13 +134,67 @@ class MainApp extends React.Component {
           'Authorization': this.state.idToken,
           'Content-Type': 'application/json'
         },
-        body: {"Name": customer.name, "EmailAddress": customer.email, "BillingAddress": customer.address, "Region": customer.region}
+        body: {"Name": customer.name, "EmailAddress": customer.email, "BillingAddress": customer.billing_address, "Region": customer.region}
     };
-      API.post(customersAPI, createPath, apiRequest).then(response => {}).catch(err => {alert('Error Creating Customer: '+err)})
-	  
+    const success = API.post(customersAPI, createPath, apiRequest)
+	  .then(response => {
+		
+		var customerID = JSON.parse(JSON.parse(response.body))["CustomerID"];
+		const success = this.createShippingAddresses(customerID, customer.shipping_addresses);
+		console.log('Shipping Address creation done');
+		console.log(success);
+		if(success)
+		{
+			NotificationManager.success('', 'Customer Successfully Created');
+			return true;
+		}else {
+			
+			NotificationManager.error('Creating Customer Shipping Addresses Failed', 'Error', 5000, () => {});
+			return false;
+		}
+		
+	  })
+	  .catch(err => {
+		console.log(err);
+		NotificationManager.error('Customer creation Failed', 'Error', 5000, () => {});
+		return false;	
+	  })
+	return success;	
+  }
+
+  async createShippingAddresses(customerID, shipping_addresses) {
+	for(var index = 0; index < shipping_addresses.length; index++) {
+		var result = await this.createShippingAddress(customerID, shipping_addresses[index].value);
+		if(!result) {
+			return false;			
+		}
+	}
+	return true;
 	  
   }
- 
+
+  async createShippingAddress(customerID, shipping_address) {
+	console.log("Sutomer: "+customerID+ "Shipping Address:"+ shipping_address);
+	const apiRequest = {
+        headers: {
+          'Authorization': this.state.idToken,
+          'Content-Type': 'application/json'
+        },
+        body:{"ShippingAddress": shipping_address}
+      };
+      const success = API.post(customersAPI, "/"+customerID+"/shipping-addresses/create", apiRequest)
+	  .then(response => {
+		return true;
+	  })
+	  .catch(err => {
+		NotificationManager.error('Address creation Failed', 'Error', 5000, () => {});
+		return false;
+	  })
+	  
+	  return success;  
+  }
+  
+  
   
   
   async createProduct(e, product) {
@@ -149,7 +206,17 @@ class MainApp extends React.Component {
         },
         body: {"Name": product.name, "Description": product.description, "CostPrice":product.cost_price}
       };
-      API.post(productsAPI, createPath, apiRequest).then(response => {}).catch(err => {alert('Error Creating Product: '+err)})
+      const success = API.post(productsAPI, createPath, apiRequest)
+	  .then(response => {
+		NotificationManager.success('', 'Product Successfully Created'); 
+		return true;
+	  })
+	  .catch(err => {
+		NotificationManager.error('Product creation Failed', 'Error', 5000, () => {});
+		return false;
+	  })
+	  
+	  return success;
   }
 
   async handleCustomerChange(event) {
@@ -286,6 +353,8 @@ class MainApp extends React.Component {
           <CreateProductPopup create_product_handler={this.createProduct.bind(this)} />
 		</div>	
       </Accordian>
+	  
+	  
 	  
       </div>
       );
