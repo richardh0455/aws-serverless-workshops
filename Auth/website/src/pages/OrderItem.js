@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import '../public/css/gridforms.css';
+import Select from 'react-select';
 
 const variants = [
-  {key:-1, name: 'No Variant'},
-  {key:1, name: 'Red Label'},
-  {key:2, name: 'Red Label, Single Use'},
-  {key:3, name: 'Green Label, Multi Use'},
+  {value:-1, label: 'No Variant'},
+  {value:1, label: 'Red Label'},
+  {value:2, label: 'Red Label, Single Use'},
+  {value:3, label: 'Green Label, Multi Use'},
 ];
 
 
@@ -14,8 +15,6 @@ class OrderItem extends Component {
     super(props);
 	var order_item = null; /*JSON.parse(localStorage.getItem(this.props.item.key));*/
     this.state = {
-		product_name: order_item ? order_item.product_name : this.props.item.product_name, 
-		product_id: order_item ? order_item.product_id : this.props.item.product_id, 
 		variant: order_item ? order_item.variant : this.props.item.variant, 
 		variant_id: order_item ? order_item.variant_id : this.props.item.variant_id, 
 		quantity: order_item ? order_item.quantity : this.props.item.quantity, 
@@ -31,7 +30,8 @@ class OrderItem extends Component {
     this.onKeyPress = this.onKeyPress.bind(this);
   }	
   handleProductChange(event) {
-	this.saveState({product_name: event.target.value, product_id: this.findProductID(event.target.value)});  
+	//this.saveState({product_name: event.target.value, product_id: this.findProductID(event.target.value)});  
+  this.setState({currentlySelectedProduct: event})
   }
   
   findProductID(product_name) {
@@ -45,7 +45,7 @@ class OrderItem extends Component {
   }
   
   handleVariantChange(event) {
-	this.saveState({variant: event.target.value, variant_id: this.findVariantID(event.target.value)});  
+	this.setState({currentlySelectedVariant: event});  
   }
   
   findVariantID(variant_name) {
@@ -81,7 +81,7 @@ class OrderItem extends Component {
   
   saveState(state) {
 	this.setState(state)   
-	var order_item  = {product_name: this.state.product_name, product_id:this.state.product_id, variant: this.state.variant,variant_id: this.state.variant_id, quantity: this.state.quantity, price: this.state.price}
+	var order_item  = {variant: this.state.variant,variant_id: this.state.variant_id, quantity: this.state.quantity, price: this.state.price}
 	for(var key in state){
       order_item[key] = state[key];
 	} 
@@ -95,19 +95,11 @@ class OrderItem extends Component {
         <div data-row-span="6">
 			<div data-field-span="1">
 				<label>Product</label>
-				<select value={this.state.product_name} onChange={this.handleProductChange}>
-					{this.props.products.map(item => (
-						<option key={item.key} value={item.name} >{item.name}</option>
-					))}
-				</select>
+				<Select value={this.state.currentlySelectedProduct} onChange={this.handleProductChange} options={this.props.products} isSearchable="true" placeholder="Select a Product"/>
 			</div>
 			<div data-field-span="1">
 				<label>Variant</label>
-				<select value={this.state.variant} onChange={this.handleVariantChange}>
-					{this.state.variants.map(item => (
-						<option key={item.key} value={item.name} >{item.name}</option>
-					))}
-				</select>
+				<Select value={this.state.currentlySelectedVariant} onChange={this.handleVariantChange} options={variants} isSearchable="true" placeholder="Select a Variant"/>
 			</div>
 			<div data-field-span="1">
 				<label>Quantity</label>

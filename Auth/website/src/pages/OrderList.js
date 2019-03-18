@@ -4,11 +4,7 @@ import '../public/css/gridforms.css';
 import * as jsPDF from 'jspdf';
 import * as Base64 from 'base-64';
 import logo from '../public/images/LTLogo.png';
-import { Auth, API } from 'aws-amplify';
 
-
-const getAllProductsPath = '/all';
-const productsAPI = 'ProductsAPI';
 
 
 
@@ -18,6 +14,7 @@ class OrderList extends Component {
 	this.state = {
 		counter: /*localStorage.getItem('counter') ? localStorage.getItem('counter') :*/ '5',
 		order_items: /*localStorage.getItem('order_items') ? JSON.parse(localStorage.getItem('order_items')) :*/ []
+		
 	};
 	
     this.removeItem = this.removeItem.bind(this);
@@ -30,25 +27,13 @@ class OrderList extends Component {
 	}
 	
     async componentDidMount() {
-      const session = await Auth.currentSession();
-      this.setState({ idToken: session.idToken.jwtToken });
-	  const products = await this.getProducts();
-	  this.setState({products: products.body})
 	  if (this.state.order_items === undefined || this.state.order_items.length == 0) 
 	  {
 		this.addOrderLine()
 	  }
     }
 	
-    async getProducts() {
-	  const apiRequest = {
-        headers: {
-          'Authorization': this.state.idToken,
-          'Content-Type': 'application/json'
-        }
-      };
-	  return await API.get(productsAPI, getAllProductsPath, apiRequest)
-    }
+    
 
 	
 	buildInvoiceBody() {
@@ -83,8 +68,7 @@ class OrderList extends Component {
    }
    addOrderLine() {
 	var key = Number(this.state.counter) + 1;
-	var defaultProduct = JSON.parse(this.state.products)[0];
-	var default_item = {key:'0', product_name:defaultProduct.Name, product_id:defaultProduct.ID, variant:'No Variant', variant_id:'0', quantity:'0', price:'0'};
+	var default_item = {key:'0', product_name:'Select a Product', product_id:"-1", variant:'No Variant', variant_id:'0', quantity:'0', price:'0'};
 	var cloneOfDefault = JSON.parse(JSON.stringify(default_item));
 	cloneOfDefault.key = key;
 	var items = this.state.order_items;
@@ -92,26 +76,9 @@ class OrderList extends Component {
 	this.saveState({counter: key, order_items: items });   
    }
    
-   /*async putState() {
-	const apiRequest = {
-      headers: {
-        'Authorization': this.state.idToken,
-        'Content-Type': 'application/json'
-      }
-    };
-	
-	if(!this.state.sessionID) {
-		this.state.sessionID = '_' + Math.random().toString(36).substr(2, 9);
-	}
-	return await API.get(sessionAPI, '/'+this.state.sessionID, apiRequest) 
-	   
-   }*/
    
    saveState(state) {
-	this.setState(state)   
-	/*for(var key in state){
-      localStorage.setItem(key, JSON.stringify(state[key]));
-	} */  
+	this.setState(state)    
    }
    
    calculateTotal(subtotals) {
@@ -183,7 +150,7 @@ class OrderList extends Component {
 	   var returnProducts = [];
 	   
 	   for(var index in products) {
-		   var formattedProduct = {key:products[index].ID, name:products[index].Name };
+		   var formattedProduct = {value:products[index].ID, label:products[index].Name };
 		   returnProducts.push(formattedProduct);
 	   }
 	   return returnProducts;
@@ -193,11 +160,11 @@ class OrderList extends Component {
    
    render() {
 	var products = [];
-	if(this.state.products){
-		products = this.parseProducts(JSON.parse(this.state.products));
+	if(this.props.products){
+		products = this.parseProducts(JSON.parse(this.props.products));
 	}
 	    
-	   
+	console.log(products);   
     return (
 	<div className = "OrderList">
 	  

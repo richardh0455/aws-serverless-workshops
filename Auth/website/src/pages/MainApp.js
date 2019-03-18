@@ -27,6 +27,7 @@ import { withRouter, Link } from 'react-router-dom';
 import {NotificationContainer, NotificationManager} from 'react-notifications';
 import Select from 'react-select';
 
+
 const customersAPI = 'CustomersAPI';
 const getAllPath = '/all';
 
@@ -58,11 +59,11 @@ class MainApp extends React.Component {
   async componentDidMount() {
     const session = await Auth.currentSession();
 	sessionStorage.setItem('session', JSON.stringify(session));
-	console.log(session);
     this.setState({ authToken: session.accessToken.jwtToken });
     this.setState({ idToken: session.idToken.jwtToken });
-    const customers = await this.getCustomers();
-    
+    this.getCustomers();
+    this.getProducts();
+	
   }
   
   componentWillUnmount() {
@@ -99,7 +100,6 @@ class MainApp extends React.Component {
     };
     API.get(customersAPI, getAllPath, apiRequest).then(response => {
 		this.setState({customers: response.body});
-		return response.body
 	}).catch(error => {
 		console.log(error.response)
 		if(error.response.status == 401){
@@ -108,6 +108,26 @@ class MainApp extends React.Component {
 		}
 	});
   }
+  
+  async getProducts() {
+	  const apiRequest = {
+        headers: {
+          'Authorization': this.state.idToken,
+          'Content-Type': 'application/json'
+        }
+      };
+	  API.get(productsAPI, getAllPath, apiRequest).then(response => {
+		console.log('Products:');  
+		console.log(response.body);  
+		this.setState({products: response.body});
+	  }).catch(error => {
+		console.log(error.response)
+		if(error.response.status == 401){
+			alert('Please Sign In')
+			//this.props.history.replace('/signin');
+		}
+	});
+    }
   
   async getCustomer(id) {
     const apiRequest = {
@@ -131,90 +151,9 @@ class MainApp extends React.Component {
       return await API.post(orderAPI, createPath, apiRequest)
   }
   
-  async createCustomer(e, customer) {
-	e.preventDefault();
-    const apiRequest = {
-        headers: {
-          'Authorization': this.state.idToken,
-          'Content-Type': 'application/json'
-        },
-        body: {"Name": customer.name, "EmailAddress": customer.email, "BillingAddress": customer.billing_address, "Region": customer.region}
-    };
-    const success = API.post(customersAPI, createPath, apiRequest)
-	  .then(response => {
-		var customerID = JSON.parse(JSON.parse(response.body))["CustomerID"];
-		const success = this.createShippingAddresses(customerID, customer.shipping_addresses);
-		if(success)
-		{
-			NotificationManager.success('', 'Customer Successfully Created');
-			return true;
-		}else {
-			
-			NotificationManager.error('Creating Customer Shipping Addresses Failed', 'Error', 5000, () => {});
-			return false;
-		}
-		
-	  })
-	  .catch(err => {
-		console.log(err);
-		NotificationManager.error('Customer creation Failed', 'Error', 5000, () => {});
-		return false;	
-	  })
-	return success;	
-  }
 
-  async createShippingAddresses(customerID, shipping_addresses) {
-	for(var index = 0; index < shipping_addresses.length; index++) {
-		var result = await this.createShippingAddress(customerID, shipping_addresses[index].value);
-		if(!result) {
-			return false;			
-		}
-	}
-	return true;
-	  
-  }
 
-  async createShippingAddress(customerID, shipping_address) {
-	const apiRequest = {
-        headers: {
-          'Authorization': this.state.idToken,
-          'Content-Type': 'application/json'
-        },
-        body:{"ShippingAddress": shipping_address}
-      };
-      const success = API.post(customersAPI, "/"+customerID+"/shipping-addresses/create", apiRequest)
-	  .then(response => {
-		return true;
-	  })
-	  .catch(err => {
-		NotificationManager.error('Address creation Failed', 'Error', 5000, () => {});
-		return false;
-	  })
-	  
-	  return success;  
-  }
-
-  async createProduct(e, product) {
-	  e.preventDefault();
-        const apiRequest = {
-        headers: {
-          'Authorization': this.state.idToken,
-          'Content-Type': 'application/json'
-        },
-        body: {"Name": product.name, "Description": product.description, "CostPrice":product.cost_price}
-      };
-      const success = API.post(productsAPI, createPath, apiRequest)
-	  .then(response => {
-		NotificationManager.success('', 'Product Successfully Created'); 
-		return true;
-	  })
-	  .catch(err => {
-		NotificationManager.error('Product creation Failed', 'Error', 5000, () => {});
-		return false;
-	  })
-	  
-	  return success;
-  }
+  
 
   async handleCustomerChange(event) { 
 	this.setState({currentlySelectedCustomer: event})  
@@ -267,16 +206,6 @@ class MainApp extends React.Component {
     });
   }
   
-  toggleProductPopup() {
-	//this.togglePopup('showProductPopup');
-	this.props.history.replace('/product');
-  }
-  
-  toggleCustomerPopup() {
-	//this.togglePopup('showCustomerPopup');
-	this.props.history.replace('/customer');
-  }
-
   render() {    
     return (
     <div className="app">
@@ -299,17 +228,17 @@ class MainApp extends React.Component {
             </div>
             <div className="OrderList" style={{marginTop: 50 + 'px'}}>
 				<h2>Product</h2>
-                <OrderList create_invoice_handler={this.createInvoice.bind(this)} />
+                <OrderList create_invoice_handler={this.createInvoice.bind(this)} products={this.state.products}/>
             </div>
         </fieldset>
         </form>
       </section>
 	  <Accordian>
 		<div label="Create Customer">
-			<CreateCustomerPopup create_customer_handler={this.createCustomer.bind(this)} />
+			<CreateCustomerPopup get_all_customers={this.getCustomers.bind(this)}/>
 		</div>	
         <div label='Create Product'>
-          <CreateProductPopup create_product_handler={this.createProduct.bind(this)} />
+          <CreateProductPopup get_all_products={this.getProducts.bind(this)} />
 		</div>	
       </Accordian>
 	  

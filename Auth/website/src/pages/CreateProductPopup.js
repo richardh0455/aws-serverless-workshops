@@ -2,6 +2,11 @@ import React from 'react';
 import logo from '../public/images/LTLogo.png';
 import { withRouter } from 'react-router-dom';
 import {NotificationContainer, NotificationManager} from 'react-notifications';
+import { Auth, API } from 'aws-amplify';
+
+
+const createPath = '/create';
+const productsAPI = 'ProductsAPI';
 
 class CreateProductPopup extends React.Component{
   
@@ -43,15 +48,34 @@ class CreateProductPopup extends React.Component{
 
   }
   
-  async createProduct(e) { 
-	const response = this.props.create_product_handler(e, {name:this.state.name, description:this.state.description, cost_price:this.state.cost_price  }); 
-	if(response) {
+  async createProductHandler(e) { 
+	e.preventDefault();
+	this.createProduct({name:this.state.name, description:this.state.description, cost_price:this.state.cost_price  }); 
+
+  }
+  
+  async createProduct(product) {
+    const apiRequest = {
+        headers: {
+          'Authorization': this.state.idToken,
+          'Content-Type': 'application/json'
+        },
+        body: {"Name": product.name, "Description": product.description, "CostPrice":product.cost_price}
+      };
+      API.post(productsAPI, createPath, apiRequest)
+	  .then(response => {
+		NotificationManager.success('', 'Product Successfully Created'); 
 		this.setState({
 			name:'',
 			description:'',
 			cost_price:'0'
 		})
-	}	
+		this.props.get_all_products();
+	  })
+	  .catch(err => {
+		NotificationManager.error('Product creation Failed', 'Error', 5000, () => {});
+	  })
+	  
   }
   
   
@@ -81,7 +105,7 @@ class CreateProductPopup extends React.Component{
 
         </fieldset>
 		<div >
-			<button onClick={(e) => {this.createProduct(e)} }>Create Product</button>
+			<button onClick={(e) => {this.createProductHandler(e)} }>Create Product</button>
 		</div>
         </form>
 		<NotificationContainer/>

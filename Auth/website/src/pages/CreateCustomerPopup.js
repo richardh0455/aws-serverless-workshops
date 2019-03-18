@@ -1,11 +1,17 @@
 import React from 'react';
+import Amplify from 'aws-amplify';
+import { Auth, API } from 'aws-amplify';
 import logo from '../public/images/LTLogo.png';
 import { withRouter } from 'react-router-dom';
 import {NotificationContainer, NotificationManager} from 'react-notifications';
 import ShippingAddress from './ShippingAddress'
 
+const customersAPI = 'CustomersAPI';
+const createPath = '/create';
 
 class CreateCustomerPopup extends React.Component{
+  
+  
   
   constructor(props) {
     super(props);
@@ -24,11 +30,13 @@ class CreateCustomerPopup extends React.Component{
 	this.handleBillingAddressChange = this.handleBillingAddressChange.bind(this);
 	this.shippingAddressUpdated = this.shippingAddressUpdated.bind(this);
 	this.addShippingAddress = this.addShippingAddress.bind(this);
+	this.createCustomer = this.createCustomer.bind(this);
 	
   }
   
   async componentDidMount() {
-    const session = JSON.parse(sessionStorage.getItem("session"));
+    const session = await Auth.currentSession();
+	sessionStorage.setItem('session', JSON.stringify(session));
     this.setState({ authToken: session.accessToken.jwtToken });
     this.setState({ idToken: session.idToken.jwtToken });
 
@@ -61,20 +69,77 @@ class CreateCustomerPopup extends React.Component{
   }
 
   
-  async createCustomer(e) { 	
-	const response = await this.props.create_customer_handler(e, {name:this.state.name,email:this.state.email, billing_address:this.state.billing_address,region:this.state.region, shipping_addresses:this.state.shipping_addresses  }); 
-	
-	console.log(response);
-	if(response) {
-		this.setState({
-			billing_address:'',
-			email:'',
-			name:'',
-			region:'',
-			shipping_addresses:[{key:'0',  value:''}],
-			counter:'0'
-		})
+  async createCustomerEventHandler(e) { 
+	e.preventDefault();  
+	this.createCustomer({name:this.state.name,email:this.state.email, billing_address:this.state.billing_address,region:this.state.region, shipping_addresses:this.state.shipping_addresses  }); 
+  }
+  
+  async createCustomer(customer) {	
+    const apiRequest = {
+        headers: {
+          'Authorization': this.state.idToken,
+          'Content-Type': 'application/json'
+        },
+        body: {"Name": customer.name, "EmailAddress": customer.email, "BillingAddress": customer.billing_address, "Region": customer.region}
+    };
+    API.post(customersAPI, createPath, apiRequest)
+	  .then(response => {
+		var customerID = JSON.parse(JSON.parse(response.body))["CustomerID"];
+		const success = this.createShippingAddresses(customerID, customer.shipping_addresses);
+		if(success)
+		{
+			NotificationManager.success('', 'Customer Successfully Created');
+			this.setState({
+				billing_address:'',
+				email:'',
+				name:'',
+				region:'',
+				shipping_addresses:[{key:'0',  value:''}],
+				counter:'0'
+			})
+			//Refresh Customer List
+			this.props.get_all_customers();
+		}else {
+			NotificationManager.error('Creating Customer Shipping Addresses Failed', 'Error', 5000, () => {});
+		}
+		
+	  })
+	  .catch(err => {
+		console.log(err);
+		NotificationManager.error('Customer creation Failed', 'Error', 5000, () => {});
+	  })
+
+  }
+
+  async createShippingAddresses(customerID, shipping_addresses) {
+	for(var index = 0; index < shipping_addresses.length; index++) {
+		var result = await this.createShippingAddress(customerID, shipping_addresses[index].value);
+		if(!result) {
+			return false;			
+		}
 	}
+	return true;
+	  
+  }
+
+  async createShippingAddress(customerID, shipping_address) {
+	const apiRequest = {
+        headers: {
+          'Authorization': this.state.idToken,
+          'Content-Type': 'application/json'
+        },
+        body:{"ShippingAddress": shipping_address}
+      };
+      const success = API.post(customersAPI, "/"+customerID+"/shipping-addresses/create", apiRequest)
+	  .then(response => {
+		return true;
+	  })
+	  .catch(err => {
+		NotificationManager.error('Address creation Failed', 'Error', 5000, () => {});
+		return false;
+	  })
+	  
+	  return success;  
   }
   
   shippingAddressUpdated(key, item) {
@@ -147,7 +212,7 @@ class CreateCustomerPopup extends React.Component{
 		
 		</fieldset>
 		<div >
-			<button style={{marginTop: 50 + 'px'}}onClick={(e) => {this.createCustomer(e)} }>Create Customer</button>
+			<button style={{marginTop: 50 + 'px'}}onClick={(e) => {this.createCustomerEventHandler(e)} }>Create Customer</button>
 		</div>
         </form>
 		<NotificationContainer/>
