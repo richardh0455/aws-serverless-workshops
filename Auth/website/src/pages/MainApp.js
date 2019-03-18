@@ -117,8 +117,6 @@ class MainApp extends React.Component {
         }
       };
 	  API.get(productsAPI, getAllPath, apiRequest).then(response => {
-		console.log('Products:');  
-		console.log(response.body);  
 		this.setState({products: response.body});
 	  }).catch(error => {
 		console.log(error.response)

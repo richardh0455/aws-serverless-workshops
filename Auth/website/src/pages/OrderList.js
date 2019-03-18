@@ -147,8 +147,7 @@ class OrderList extends Component {
 
    
    parseProducts(products) {   
-	   var returnProducts = [];
-	   
+	   var returnProducts = [];	   
 	   for(var index in products) {
 		   var formattedProduct = {value:products[index].ID, label:products[index].Name };
 		   returnProducts.push(formattedProduct);
@@ -163,8 +162,6 @@ class OrderList extends Component {
 	if(this.props.products){
 		products = this.parseProducts(JSON.parse(this.props.products));
 	}
-	    
-	console.log(products);   
     return (
 	<div className = "OrderList">
 	  

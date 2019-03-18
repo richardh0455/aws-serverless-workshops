@@ -30,8 +30,7 @@ class OrderItem extends Component {
     this.onKeyPress = this.onKeyPress.bind(this);
   }	
   handleProductChange(event) {
-	//this.saveState({product_name: event.target.value, product_id: this.findProductID(event.target.value)});  
-  this.setState({currentlySelectedProduct: event})
+    this.setState({currentlySelectedProduct: event})
   }
   
   findProductID(product_name) {
@@ -86,7 +85,6 @@ class OrderItem extends Component {
       order_item[key] = state[key];
 	} 
 	this.props.update_item_handler(this.props.item.key, order_item)
-	//localStorage.setItem(this.props.item.key, JSON.stringify(order_item));
    }
 	
   render() { 
