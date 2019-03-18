@@ -25,6 +25,7 @@ import CreateProductPopup  from './CreateProductPopup';
 import Accordian  from './Accordian';
 import { withRouter, Link } from 'react-router-dom';
 import {NotificationContainer, NotificationManager} from 'react-notifications';
+import Select from 'react-select';
 
 const customersAPI = 'CustomersAPI';
 const getAllPath = '/all';
@@ -48,6 +49,9 @@ class MainApp extends React.Component {
 	  showProductPopup: false,
 	  showCustomerPopup: false
     };
+	
+	this.handleCustomerChange = this.handleCustomerChange.bind(this);
+	this.handleShippingAddressChange = this.handleShippingAddressChange.bind(this);
   }
 
 
@@ -138,11 +142,8 @@ class MainApp extends React.Component {
     };
     const success = API.post(customersAPI, createPath, apiRequest)
 	  .then(response => {
-		
 		var customerID = JSON.parse(JSON.parse(response.body))["CustomerID"];
 		const success = this.createShippingAddresses(customerID, customer.shipping_addresses);
-		console.log('Shipping Address creation done');
-		console.log(success);
 		if(success)
 		{
 			NotificationManager.success('', 'Customer Successfully Created');
@@ -174,7 +175,6 @@ class MainApp extends React.Component {
   }
 
   async createShippingAddress(customerID, shipping_address) {
-	console.log("Sutomer: "+customerID+ "Shipping Address:"+ shipping_address);
 	const apiRequest = {
         headers: {
           'Authorization': this.state.idToken,
@@ -193,10 +193,7 @@ class MainApp extends React.Component {
 	  
 	  return success;  
   }
-  
-  
-  
-  
+
   async createProduct(e, product) {
 	  e.preventDefault();
         const apiRequest = {
@@ -219,27 +216,18 @@ class MainApp extends React.Component {
 	  return success;
   }
 
-  async handleCustomerChange(event) {
-      
-      
-    var customer = await this.getCustomer(event.target.value);
-    
-    
+  async handleCustomerChange(event) { 
+	this.setState({currentlySelectedCustomer: event})  
+    var customer = await this.getCustomer(event.value);
     this.setState({customer: customer.body})
-    
-
-    this.changeSelectedShippingAddress(-1);
-
+	this.handleShippingAddressChange(null);
   }
   
   handleShippingAddressChange(event) {
-    this.changeSelectedShippingAddress(event.target.value)
+	this.setState({currentlySelectedShippingAddress: event})
   }
   
-  changeSelectedShippingAddress(id) {
-    this.setState({shippingAddress: id})
-
-  }
+  
 
   generateCustomerList() {
     var customers = [];
@@ -250,7 +238,7 @@ class MainApp extends React.Component {
     let customerOptions = [];
     try{
         customerOptions = customers.map((customer) =>
-                <option key={customer.ID} value={customer.ID}>{customer.Name}</option>
+		{return {value:customer.ID, label: customer.Name}}
             );
     }catch(err)
     {
@@ -261,11 +249,11 @@ class MainApp extends React.Component {
   }
   
   generateShippingAddressList(customer) {
-    let shippingAddresses = [];        
+    let shippingAddresses = []; 
     if(customer && "ShippingAddresses" in customer){
         shippingAddresses = customer.ShippingAddresses.map((address) => 
-                <option key={address.ShippingAddressID} value={address.ShippingAddressID}>{address.ShippingAddress}</option>
-            );
+			{return {value:address.ShippingAddressID, label: address.ShippingAddress}}
+        );
     }  
     return shippingAddresses;  
   }
@@ -290,28 +278,6 @@ class MainApp extends React.Component {
   }
 
   render() {    
-    var currentlySelectedCustomer = null;
-
-    if(this.state.customer){
-        currentlySelectedCustomer = JSON.parse(this.state.customer);
-    }    
-    
-    var currentlySelectedCustomerID = '0'
-    if(currentlySelectedCustomer && "ContactInfo" in currentlySelectedCustomer)
-    {
-        currentlySelectedCustomerID = currentlySelectedCustomer.ContactInfo.CustomerID;
-    }
-    
-    var shippingAddresses =this.generateShippingAddressList(currentlySelectedCustomer);
-    var currentlySelectedShippingAddressID = '-1'
-    if(shippingAddresses.length == 1) {
-        currentlySelectedShippingAddressID = currentlySelectedCustomer.ShippingAddresses[0].ShippingAddressID
-    }
-    else if(this.state.shippingAddress)
-    {
-        currentlySelectedShippingAddressID = this.state.shippingAddress;
-    }
-
     return (
     <div className="app">
     <header>
@@ -324,18 +290,11 @@ class MainApp extends React.Component {
             <div data-row-span="2">
               <div data-field-span="1" >
                 <label>Customer</label>
-                <select onChange={this.handleCustomerChange.bind(this)} >
-				  <option value="" disabled selected >Select a customer</option>
-                  {this.generateCustomerList()}
-                </select>
+                <Select value={this.state.currentlySelectedCustomer} onChange={this.handleCustomerChange} options={this.generateCustomerList()} isSearchable="true" placeholder="Select a Customer"/>
               </div>
               <div data-field-span="1" >
                 <label>Shipping Address</label>
-                <select onChange={this.handleShippingAddressChange.bind(this)}>
-                  <option value="" disabled selected >Select a Shipping Address</option>
-                  {shippingAddresses}
-
-                </select>
+                <Select value={this.state.currentlySelectedShippingAddress} onChange={this.handleShippingAddressChange} options={this.generateShippingAddressList(JSON.parse(this.state.customer))} placeholder="Select a Shipping Address"/>
               </div>
             </div>
             <div className="OrderList" style={{marginTop: 50 + 'px'}}>
