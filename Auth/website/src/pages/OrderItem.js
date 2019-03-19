@@ -1,13 +1,10 @@
 import React, { Component } from 'react';
 import '../public/css/gridforms.css';
 import Select from 'react-select';
+import { Auth, API } from 'aws-amplify';
 
-const variants = [
-  {value:-1, label: 'No Variant'},
-  {value:1, label: 'Red Label'},
-  {value:2, label: 'Red Label, Single Use'},
-  {value:3, label: 'Green Label, Multi Use'},
-];
+const variantsAPI = 'VariantsAPI';
+const getAllPath = '/all';
 
 
 class OrderItem extends Component {
@@ -19,7 +16,7 @@ class OrderItem extends Component {
 		variant_id: order_item ? order_item.variant_id : this.props.item.variant_id, 
 		quantity: order_item ? order_item.quantity : this.props.item.quantity, 
 		price: order_item ? order_item.price : this.props.item.price,
-		variants: variants
+		variants: []
 	};
 
     this.handleProductChange = this.handleProductChange.bind(this);
@@ -29,32 +26,39 @@ class OrderItem extends Component {
     this.removeItem = this.removeItem.bind(this);
     this.onKeyPress = this.onKeyPress.bind(this);
   }	
+  
+  async componentDidMount() {
+    const session = await Auth.currentSession();
+    this.setState({ authToken: session.accessToken.jwtToken });
+    this.setState({ idToken: session.idToken.jwtToken });
+
+    
+  }
+  
   handleProductChange(event) {
     this.setState({currentlySelectedProduct: event})
   }
   
-  findProductID(product_name) {
-	var products = this.props.products; 
-	for(var i = 0; i < products.length; i++) {
-		if(product_name === products[i].name){
-			return products[i].key;
-		}
-	}
-	return "0"  
-  }
   
   handleVariantChange(event) {
 	this.setState({currentlySelectedVariant: event});  
   }
   
-  findVariantID(variant_name) {
-	var variants = this.state.variants;  
-	for(var i = 0; i < variants.length; i++) {
-		if(variant_name === variants[i].name){
-			return variants[i].key;
-		}
-	}
-	return -1;  
+  async getVariants() {
+	  var productID = this.state.currentlySelectedProduct.value;
+	  var customerID = this.props.customer.value;
+	  const apiRequest = {
+        headers: {
+          'Authorization': this.state.idToken,
+          'Content-Type': 'application/json'
+        }, 
+		body: {"CustomerID": customerID, "ProductID": productID}
+      };
+	  API.get(variantsAPI, getAllPath, apiRequest).then(response => {
+		this.setState({variants: response.body});
+	  }).catch(error => {
+		console.log(error.response)
+	});
   }
   
   handleQuantityChange(event) {
@@ -97,7 +101,7 @@ class OrderItem extends Component {
 			</div>
 			<div data-field-span="1">
 				<label>Variant</label>
-				<Select value={this.state.currentlySelectedVariant} onChange={this.handleVariantChange} options={variants} isSearchable="true" placeholder="Select a Variant"/>
+				<Select value={this.state.currentlySelectedVariant} onChange={this.handleVariantChange} options={this.state.variants} isSearchable="true" placeholder="Select a Variant"/>
 			</div>
 			<div data-field-span="1">
 				<label>Quantity</label>

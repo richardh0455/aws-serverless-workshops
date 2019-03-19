@@ -22,6 +22,7 @@ import logo from '../public/images/LTLogo.png';
 import CreateCustomerPopup  from './CreateCustomerPopup';
 import CreateProductPopup  from './CreateProductPopup';
 import CreateOrder  from './CreateOrder';
+import CreateVariant  from './CreateVariant';
 import Accordian  from './Accordian';
 import { withRouter, Link } from 'react-router-dom';
 import {NotificationContainer, NotificationManager} from 'react-notifications';
@@ -44,9 +45,7 @@ class MainApp extends React.Component {
     
     this.state = {
       authToken: null,
-      idToken: null,
-      customer: null,
-      shippingAddress:null
+      idToken: null
     };
 	
   }
@@ -121,7 +120,7 @@ class MainApp extends React.Component {
 			//this.props.history.replace('/signin');
 		}
 	});
-    }
+  }
 
   generateCustomerList() {
     var customers = [];
@@ -140,7 +139,25 @@ class MainApp extends React.Component {
     }
     return customerOptions;
       
-  }  
+  }
+  
+  parseProducts() {   
+	var products = [];
+	if(this.state.products){
+       products = JSON.parse(this.state.products);
+	} 
+	
+	var productOptions = [];
+    try{
+        productOptions = products.map((product) =>
+		{return {value:product.ID, label: product.Name}}
+            );
+    }catch(err)
+    {
+        console.log('Error rendering Products: '+err);
+    }
+    return productOptions;
+   }  
   
   render() {    
     return (
@@ -150,14 +167,17 @@ class MainApp extends React.Component {
       </header> 
 	  <Accordian>
 		<div label="Create Order">
-			<CreateOrder customers={this.generateCustomerList()} products={this.state.products}/>
+			<CreateOrder customers={this.generateCustomerList()} products={this.parseProducts()} />
 		</div>	
 		<div label="Create Customer">
 			<CreateCustomerPopup get_all_customers={this.getCustomers.bind(this)}/>
 		</div>	
         <div label='Create Product'>
           <CreateProductPopup get_all_products={this.getProducts.bind(this)} />
-		</div>	
+		</div>
+		<div label='Create Variant'>
+          <CreateVariant customers={this.generateCustomerList()} products={this.parseProducts()} />
+		</div>		
       </Accordian>	  
       </div>
       );

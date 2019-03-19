@@ -36,7 +36,6 @@ class CreateCustomerPopup extends React.Component{
   
   async componentDidMount() {
     const session = await Auth.currentSession();
-	sessionStorage.setItem('session', JSON.stringify(session));
     this.setState({ authToken: session.accessToken.jwtToken });
     this.setState({ idToken: session.idToken.jwtToken });
 

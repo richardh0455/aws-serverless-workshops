@@ -31,7 +31,6 @@ class CreateOrder extends React.Component{
   
   async componentDidMount() {
     const session = await Auth.currentSession();
-	sessionStorage.setItem('session', JSON.stringify(session));
     this.setState({ authToken: session.accessToken.jwtToken });
     this.setState({ idToken: session.idToken.jwtToken });
 
@@ -103,7 +102,7 @@ class CreateOrder extends React.Component{
             </div>
             <div className="OrderList" style={{marginTop: 50 + 'px'}}>
 				<h2>Product</h2>
-                <OrderList create_invoice_handler={this.createInvoice.bind(this)} products={this.props.products}/>
+                <OrderList create_invoice_handler={this.createInvoice.bind(this)} products={this.props.products} customer={this.state.currentlySelectedCustomer}/>
             </div>
         </fieldset>
         </form>

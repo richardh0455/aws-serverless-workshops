@@ -33,7 +33,7 @@ class OrderList extends Component {
 	  }
     }
 	
-    
+
 
 	
 	buildInvoiceBody() {
@@ -144,30 +144,14 @@ class OrderList extends Component {
 	   this.props.create_invoice_handler(this.buildInvoiceBody());
    }
    
-
-   
-   parseProducts(products) {   
-	   var returnProducts = [];	   
-	   for(var index in products) {
-		   var formattedProduct = {value:products[index].ID, label:products[index].Name };
-		   returnProducts.push(formattedProduct);
-	   }
-	   return returnProducts;
-   }
-   
-   
    
    render() {
-	var products = [];
-	if(this.props.products){
-		products = this.parseProducts(JSON.parse(this.props.products));
-	}
     return (
 	<div className = "OrderList">
 	  
       <fieldset>
 		{this.state.order_items.map(item => (
-			<OrderItem key={item.key} item={item} products={products} update_item_handler={this.orderItemUpdated} />
+			<OrderItem key={item.key} item={item} products={this.props.products} update_item_handler={this.orderItemUpdated} customer={this.props.customer}/>
 		))}
 		
 		
